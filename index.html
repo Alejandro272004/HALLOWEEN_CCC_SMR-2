@@ -49,6 +49,13 @@
             z-index: 5;
         }
 
+        .door.used {
+            background-color: rgba(100, 100, 100, 0.5);
+            border-color: gray;
+            pointer-events: none;
+            filter: grayscale(1);
+        }
+
         #door1 {
             top: 100px;
             left: 600px;
@@ -59,6 +66,7 @@
             left: 100px;
         }
 
+        /* 🧟 */
         #door3 {
             top: 400px;
             left: 600px;
@@ -83,15 +91,15 @@
     <div id="game-area">
         <div id="player"></div>
 
-        <!-- Puertas (sin enlaces directos) -->
-        <div id="door1" class="door" data-link="minijuegos/laberinto.html">🎃</div>
-        <div id="door2" class="door" data-link="minijuegos/diferencias.html">🧟</div>
-        <div id="door3" class="door" data-link="minijuegos/puzzle.html">🧩</div>
-        <div id="door4" class="door" data-link="minijuegos/ahorcado.html">💀</div>
+        <!-- Puertas a minijuegos -->
+        <div id="door1" class="door" data-link="minijuegos/laberinto.html" data-id="laberinto">🎃</div>
+        <div id="door2" class="door" data-link="minijuegos/diferencias.html" data-id="zombie">🧟</div>
+        <div id="door3" class="door" data-link="minijuegos/puzzle.html" data-id="puzzle">🧩</div>
+        <div id="door4" class="door" data-link="minijuegos/ahorcado.html" data-id="ahorcado">💀</div>
     </div>
 
     <div id="instructions">
-        Usa las flechas o WASD para moverte. Acércate a una puerta para entrar al minijuego.
+        Usa las flechas o WASD para moverte. Entra en una puerta solo una vez.
     </div>
 
     <script>
@@ -100,6 +108,16 @@
         let posX = 100;
         let posY = 100;
         const speed = 10;
+        let entered = false;
+
+        // Al cargar la página, desactiva puertas ya usadas
+        doors.forEach(door => {
+            const id = door.getAttribute('data-id');
+            const completed = localStorage.getItem('minijuego_' + id);
+            if (completed === 'true') {
+                door.classList.add('used');
+            }
+        });
 
         document.addEventListener("keydown", (e) => {
             switch (e.key) {
@@ -139,21 +157,21 @@
             );
         }
 
-        let entered = false; // evita entrar dos veces
-
         function checkCollision() {
             if (entered) return;
 
             const playerRect = player.getBoundingClientRect();
 
             doors.forEach(door => {
+                if (door.classList.contains("used")) return;
+
                 const doorRect = door.getBoundingClientRect();
                 if (isColliding(playerRect, doorRect)) {
                     const link = door.getAttribute("data-link");
                     entered = true;
                     setTimeout(() => {
                         window.location.href = link;
-                    }, 200); // pequeña pausa antes de ir al minijuego
+                    }, 200);
                 }
             });
         }
