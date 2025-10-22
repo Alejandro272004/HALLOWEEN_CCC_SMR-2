@@ -2,8 +2,8 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Sala del Zombie - Encuentra las Diferencias</title>
+    <meta charset="UTF-8" />
+    <title>Sala Zombie - Encuentra las Diferencias</title>
     <style>
         body {
             margin: 0;
@@ -14,40 +14,56 @@
         }
 
         h1 {
-            margin: 20px 0;
+            margin: 20px;
         }
 
         #game-container {
-            display: flex;
-            justify-content: center;
-            align-items: start;
-            gap: 40px;
-            padding: 20px;
-        }
-
-        .image-box {
             position: relative;
-            width: 512px;
-            height: 355px;
+            width: 1024px;
+            height: 709px;
+            margin: 0 auto;
+            background-image: url('https://www.orientacionandujar.es/wp-content/uploads/2024/09/CUADERNO-DE-ATENCION-halloween-ENCUENTRA-LAS-3-DIFERENCIAS10-1024x709.jpeg');
             background-size: cover;
             background-position: center;
-            border: 2px solid crimson;
+            border: 3px solid crimson;
         }
 
         .difference-spot {
             position: absolute;
-            width: 30px;
-            height: 30px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            border: 2px solid lime;
+            border: 3px solid lime;
             background-color: rgba(0, 255, 0, 0.3);
-            pointer-events: auto;
             cursor: pointer;
+            transition: background-color 0.3s, border-color 0.3s;
         }
 
         .difference-spot.found {
             background-color: rgba(255, 255, 255, 0.5);
-            border: 2px solid white;
+            border-color: white;
+        }
+
+        #win-message {
+            margin-top: 30px;
+            font-size: 24px;
+            color: lime;
+            display: none;
+        }
+
+        #back-btn {
+            margin-top: 20px;
+            font-size: 18px;
+            background: crimson;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            display: none;
+        }
+
+        #back-btn:hover {
+            background: darkred;
         }
 
         #jumpscare {
@@ -67,61 +83,30 @@
             max-width: 100%;
             max-height: 100%;
         }
-
-        #win-message {
-            margin-top: 30px;
-            font-size: 24px;
-            color: lime;
-            display: none;
-        }
-
-        #back-btn {
-            display: none;
-            margin-top: 20px;
-            font-size: 18px;
-            background: crimson;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            cursor: pointer;
-        }
-
-        #back-btn:hover {
-            background: darkred;
-        }
     </style>
 </head>
 
 <body>
 
-    <h1>🧟 Sala del Zombie: Encuentra las 3 diferencias</h1>
+    <h1>🧟 Sala Zombie: Encuentra las 3 diferencias</h1>
 
     <div id="game-container">
-        <!-- Imagen izquierda (no interactiva) -->
-        <div class="image-box" id="left-image"
-            style="background-image: url('https://www.orientacionandujar.es/wp-content/uploads/2024/09/CUADERNO-DE-ATENCION-halloween-ENCUENTRA-LAS-3-DIFERENCIAS10-1024x709.jpeg');">
-        </div>
-
-        <!-- Imagen derecha (interactiva) -->
-        <div class="image-box" id="right-image"
-            style="background-image: url('https://www.orientacionandujar.es/wp-content/uploads/2024/09/CUADERNO-DE-ATENCION-halloween-ENCUENTRA-LAS-3-DIFERENCIAS10-1024x709.jpeg');">
-            <!-- Diferencias -->
-            <div class="difference-spot" style="top: 140px; left: 300px;"></div> <!-- Casa -->
-            <div class="difference-spot" style="top: 220px; left: 400px;"></div> <!-- Nariz -->
-            <div class="difference-spot" style="top: 280px; left: 250px;"></div> <!-- Calabaza -->
-        </div>
+        <!-- Puntos de diferencia -->
+        <div class="difference-spot" style="top: 140px; left: 300px;"></div> <!-- Casa -->
+        <div class="difference-spot" style="top: 220px; left: 400px;"></div> <!-- Nariz -->
+        <div class="difference-spot" style="top: 280px; left: 250px;"></div> <!-- Calabaza -->
     </div>
 
     <div id="win-message">✅ ¡Has encontrado todas las diferencias! Has ganado una ficha.</div>
     <button id="back-btn">Volver al pasillo</button>
 
     <div id="jumpscare">
-        <img src="https://i.imgur.com/2XhEZ0I.gif" alt="¡Susto!">
+        <img src="https://i.imgur.com/2XhEZ0I.gif" alt="¡Susto!" />
     </div>
 
     <script>
         let found = 0;
-        let errores = 0;
+        let errors = 0;
         const spots = document.querySelectorAll('.difference-spot');
         const winMessage = document.getElementById('win-message');
         const backBtn = document.getElementById('back-btn');
@@ -140,15 +125,15 @@
             });
         });
 
-        // Click en imagen sin acertar
-        document.getElementById('right-image').addEventListener('click', (e) => {
+        // Clic en cualquier otra parte del contenedor que no sea punto
+        document.getElementById('game-container').addEventListener('click', (e) => {
             if (!e.target.classList.contains('difference-spot')) {
-                errores++;
-                if (errores >= 3) {
+                errors++;
+                if (errors >= 3) {
                     jumpscare.style.display = 'flex';
                     setTimeout(() => {
                         jumpscare.style.display = 'none';
-                        errores = 0;
+                        errors = 0;
                     }, 1500);
                 }
             }
