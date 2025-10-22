@@ -40,24 +40,28 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            border: 3px solid lime;
-            background-color: rgba(0, 255, 0, 0.4);
+            background-color: transparent;
+            border: none;
             cursor: pointer;
-            transition: background-color 0.3s, border-color 0.3s;
             transform: translate(-50%, -50%);
             font-weight: bold;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: black;
+            color: transparent;
             user-select: none;
+            transition: all 0.3s;
         }
+
+
+
 
         .difference-spot.found {
             background-color: rgba(255, 255, 255, 0.7);
-            border-color: white;
+            border: 3px solid white;
             color: green;
         }
+
 
         #win-message {
             margin-top: 30px;
