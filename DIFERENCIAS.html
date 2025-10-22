@@ -20,6 +20,7 @@
         #game-container {
             position: relative;
             width: 1024px;
+            /* Tamaño fijo para mantener proporción */
             height: 709px;
             margin: 0 auto;
             background-image: url('https://www.orientacionandujar.es/wp-content/uploads/2024/09/CUADERNO-DE-ATENCION-halloween-ENCUENTRA-LAS-3-DIFERENCIAS10-1024x709.jpeg');
@@ -37,6 +38,8 @@
             background-color: rgba(0, 255, 0, 0.3);
             cursor: pointer;
             transition: background-color 0.3s, border-color 0.3s;
+            transform: translate(-50%, -50%);
+            /* centrar el círculo en el punto */
         }
 
         .difference-spot.found {
@@ -92,9 +95,9 @@
 
     <div id="game-container">
         <!-- Puntos de diferencia -->
-        <div class="difference-spot" style="top: 140px; left: 300px;"></div> <!-- Casa -->
-        <div class="difference-spot" style="top: 220px; left: 400px;"></div> <!-- Nariz -->
-        <div class="difference-spot" style="top: 280px; left: 250px;"></div> <!-- Calabaza -->
+        <div class="difference-spot" style="top: 21.1%; left: 32.2%;"></div> <!-- Casa -->
+        <div class="difference-spot" style="top: 29.6%; left: 53.7%;"></div> <!-- Nariz -->
+        <div class="difference-spot" style="top: 67.7%; left: 42.0%;"></div> <!-- Calabaza -->
     </div>
 
     <div id="win-message">✅ ¡Has encontrado todas las diferencias! Has ganado una ficha.</div>
@@ -125,7 +128,6 @@
             });
         });
 
-        // Clic en cualquier otra parte del contenedor que no sea punto
         document.getElementById('game-container').addEventListener('click', (e) => {
             if (!e.target.classList.contains('difference-spot')) {
                 errors++;
