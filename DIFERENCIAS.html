@@ -20,13 +20,19 @@
         #game-container {
             position: relative;
             width: 1024px;
-            /* Tamaño fijo para mantener proporción */
             height: 709px;
             margin: 0 auto;
             background-image: url('https://www.orientacionandujar.es/wp-content/uploads/2024/09/CUADERNO-DE-ATENCION-halloween-ENCUENTRA-LAS-3-DIFERENCIAS10-1024x709.jpeg');
             background-size: cover;
             background-position: center;
             border: 3px solid crimson;
+            /* Añadimos cuadrícula para referencia */
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                url('https://www.orientacionandujar.es/wp-content/uploads/2024/09/CUADERNO-DE-ATENCION-halloween-ENCUENTRA-LAS-3-DIFERENCIAS10-1024x709.jpeg');
+            background-size: 64px 64px, 64px 64px, cover;
+            background-position: 0 0, 0 0, center;
         }
 
         .difference-spot {
@@ -35,16 +41,22 @@
             height: 40px;
             border-radius: 50%;
             border: 3px solid lime;
-            background-color: rgba(0, 255, 0, 0.3);
+            background-color: rgba(0, 255, 0, 0.4);
             cursor: pointer;
             transition: background-color 0.3s, border-color 0.3s;
             transform: translate(-50%, -50%);
-            /* centrar el círculo en el punto */
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: black;
+            user-select: none;
         }
 
         .difference-spot.found {
-            background-color: rgba(255, 255, 255, 0.5);
+            background-color: rgba(255, 255, 255, 0.7);
             border-color: white;
+            color: green;
         }
 
         #win-message {
@@ -94,10 +106,10 @@
     <h1>🧟 Sala Zombie: Encuentra las 3 diferencias</h1>
 
     <div id="game-container">
-        <!-- Puntos de diferencia -->
-        <div class="difference-spot" style="top: 21.1%; left: 32.2%;"></div> <!-- Casa -->
-        <div class="difference-spot" style="top: 29.6%; left: 53.7%;"></div> <!-- Nariz -->
-        <div class="difference-spot" style="top: 67.7%; left: 42.0%;"></div> <!-- Calabaza -->
+        <!-- Puntos de diferencia con número para referencia visual -->
+        <div class="difference-spot" style="top: 210px; left: 560px;">1</div> <!-- Nariz -->
+        <div class="difference-spot" style="top: 160px; left: 340px;">2</div> <!-- Casa -->
+        <div class="difference-spot" style="top: 480px; left: 430px;">3</div> <!-- Calabaza -->
     </div>
 
     <div id="win-message">✅ ¡Has encontrado todas las diferencias! Has ganado una ficha.</div>
