@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>💀 Sala del Ahorcado de Miedo</title>
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    h1 {
+      margin: 20px;
+    }
+    #game-container {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #111;
+      border: 3px solid crimson;
+    }
+    #word-display {
+      font-size: 32px;
+      letter-spacing: 10px;
+      margin: 20px 0;
+    }
+    #keyboard {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .key {
+      width: 40px;
+      height: 40px;
+      line-height: 40px;
+      background: #333;
+      color: white;
+      text-align: center;
+      cursor: pointer;
+      user-select: none;
+      border-radius: 5px;
+    }
+    .key.disabled {
+      background: #555;
+      cursor: default;
+    }
+    #info {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    #win-message {
+      font-size: 24px;
+      color: lime;
+      display: none;
+      margin-top: 20px;
+    }
+    #lose-message {
+      font-size: 24px;
+      color: red;
+      display: none;
+      margin-top: 20px;
+    }
+    #back-btn {
+      margin-top: 20px;
+      font-size: 18px;
+      background: crimson;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      display: none;
+    }
+    #back-btn:hover {
+      background: darkred;
+    }
+    #jumpscare {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: black;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+    #jumpscare img {
+      max-width: 100%;
+      max-height: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>💀 Sala del Ahorcado de Miedo</h1>
+
+  <div id="game-container">
+    <div id="info">Fallos permitidos: <span id="remaining">6</span></div>
+    <div id="word-display"></div>
+    <div id="keyboard"></div>
+  </div>
+
+  <div id="win-message">✅ ¡Has ganado la ficha del Ahorcado!</div>
+  <div id="lose-message">❌ ¡Has perdido! El esqueleto te atrapa...</div>
+  <button id="back-btn">Volver al pasillo</button>
+
+  <div id="jumpscare">
+    <img src="https://i.imgur.com/2XhEZ0I.gif" alt="¡Susto esqueleto!" />
+  </div>
+
+  <!-- Sonido del susto -->
+  <audio id="scream-audio" src="https://cdn.pixabay.com/audio/2022/03/15/audio_b6b5a9ad36.mp3" preload="auto"></audio>
+
+  <script>
+    const palabras = ["calabaza", "murcielago", "fantasma", "esqueleto", "brujula"];  // puedes cambiar o ampliar
+    const maxFallos = 6;
+    let palabra = "";
+    let palabraArray = [];
+    let displayArray = [];
+    let fallos = 0;
+    let juegoTerminado = false;
+
+    const wordDisplay = document.getElementById("word-display");
+    const keyboardDiv = document.getElementById("keyboard");
+    const remainingSpan = document.getElementById("remaining");
+    const winMessage = document.getElementById("win-message");
+    const loseMessage = document.getElementById("lose-message");
+    const backBtn = document.getElementById("back-btn");
+    const jumpscare = document.getElementById("jumpscare");
+    const screamAudio = document.getElementById("scream-audio");
+
+    function iniciar() {
+      palabra = palabras[Math.floor(Math.random() * palabras.length)];
+      palabraArray = palabra.split("");
+      displayArray = palabraArray.map(_ => "_");
+      fallos = 0;
+      juegoTerminado = false;
+      remainingSpan.textContent = maxFallos - fallos;
+      renderWord();
+      crearTeclado();
+    }
+
+    function renderWord() {
+      wordDisplay.textContent = displayArray.join(" ");
+    }
+
+    function crearTeclado() {
+      keyboardDiv.innerHTML = "";
+      for (let i = 97; i <= 122; i++) {
+        const letra = String.fromCharCode(i);
+        const btn = document.createElement("div");
+        btn.textContent = letra;
+        btn.classList.add("key");
+        btn.addEventListener("click", () => manejarLetra(letra, btn));
+        keyboardDiv.appendChild(btn);
+      }
+    }
+
+    function manejarLetra(letra, btn) {
+      if (juegoTerminado) return;
+      btn.classList.add("disabled");
+      btn.style.pointerEvents = "none";
+      if (palabraArray.includes(letra)) {
+        for (let i=0; i<palabraArray.length; i++) {
+          if (palabraArray[i] === letra) {
+            displayArray[i] = letra;
+          }
+        }
+        renderWord();
+        if (!displayArray.includes("_")) {
+          ganar();
+        }
+      } else {
+        fallos++;
+        remainingSpan.textContent = maxFallos - fallos;
+        if (fallos >= maxFallos) {
+          perder();
+        }
+      }
+    }
+
+    function ganar() {
+      juegoTerminado = true;
+      localStorage.setItem("minijuego_ahorcado", "true");
+      winMessage.style.display = "block";
+      backBtn.style.display = "inline-block";
+    }
+
+    function perder() {
+      juegoTerminado = true;
+      loseMessage.style.display = "block";
+      jumpscare.style.display = "flex";
+      screamAudio.play().catch(() => {});
+      setTimeout(() => {
+        jumpscare.style.display = "none";
+      }, 1500);
+      backBtn.style.display = "inline-block";
+    }
+
+    backBtn.addEventListener("click", () => {
+      window.location.href = "../index.html";
+    });
+
+    iniciar();
+  </script>
+</body>
+</html>
