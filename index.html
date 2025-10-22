@@ -1,125 +1,163 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-  <meta charset="UTF-8">
-  <title>ScapeRun Halloween</title>
-  <style>
-    body {
-      margin: 0;
-      background-color: black;
-      overflow: hidden;
-      font-family: 'Arial', sans-serif;
-    }
+    <meta charset="UTF-8">
+    <title>ScapeRun Halloween</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: black;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+        }
 
-    #game-area {
-      position: relative;
-      width: 800px;
-      height: 600px;
-      margin: 20px auto;
-      background: url('https://i.imgur.com/ZL4Ru2g.jpg') no-repeat center center;
-      background-size: cover;
-      border: 5px solid crimson;
-      box-shadow: 0 0 20px red;
-    }
+        #game-area {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            margin: 20px auto;
+            background: url('tu-fondo.jpg') no-repeat center center;
+            background-size: cover;
+            border: 5px solid crimson;
+            box-shadow: 0 0 20px red;
+        }
 
-    #player {
-      position: absolute;
-      top: 100px;
-      left: 100px;
-      width: 40px;
-      height: 40px;
-      background: url('https://i.imgur.com/VcM1Yfa.png') no-repeat center center;
-      background-size: cover;
-      z-index: 10;
-    }
+        #player {
+            position: absolute;
+            top: 100px;
+            left: 100px;
+            width: 40px;
+            height: 40px;
+            background: url('https://i.imgur.com/VcM1Yfa.png') no-repeat center center;
+            background-size: cover;
+            z-index: 10;
+        }
 
-    .door {
-      position: absolute;
-      width: 60px;
-      height: 60px;
-      background-color: rgba(255, 0, 0, 0.4);
-      border: 2px solid white;
-      color: white;
-      font-size: 30px;
-      text-align: center;
-      line-height: 60px;
-      text-decoration: none;
-      border-radius: 10px;
-      transition: transform 0.3s;
-      z-index: 5;
-    }
+        .door {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background-color: rgba(255, 0, 0, 0.4);
+            border: 2px solid white;
+            color: white;
+            font-size: 30px;
+            text-align: center;
+            line-height: 60px;
+            text-decoration: none;
+            border-radius: 10px;
+            z-index: 5;
+        }
 
-    .door:hover {
-      transform: scale(1.2);
-      cursor: pointer;
-      background-color: crimson;
-    }
+        #door1 {
+            top: 100px;
+            left: 600px;
+        }
 
-    /* Posiciones de puertas */
-    #door1 { top: 100px; left: 600px; }
-    #door2 { top: 300px; left: 100px; }
-    #door3 { top: 400px; left: 600px; }
-    #door4 { top: 200px; left: 300px; }
+        #door2 {
+            top: 300px;
+            left: 100px;
+        }
 
-    /* UI */
-    #instructions {
-      color: white;
-      text-align: center;
-      margin-top: 10px;
-      font-size: 18px;
-    }
-  </style>
+        #door3 {
+            top: 400px;
+            left: 600px;
+        }
+
+        #door4 {
+            top: 200px;
+            left: 300px;
+        }
+
+        #instructions {
+            color: white;
+            text-align: center;
+            margin-top: 10px;
+            font-size: 18px;
+        }
+    </style>
 </head>
+
 <body>
 
-  <div id="game-area">
-    <div id="player"></div>
+    <div id="game-area">
+        <div id="player"></div>
 
-    <!-- Puertas a minijuegos -->
-    <a id="door1" class="door" href="minijuegos/laberinto.html">🎃</a>
-    <a id="door2" class="door" href="minijuegos/diferencias.html">🧟</a>
-    <a id="door3" class="door" href="minijuegos/puzzle.html">🧩</a>
-    <a id="door4" class="door" href="minijuegos/ahorcado.html">💀</a>
-  </div>
+        <!-- Puertas (sin enlaces directos) -->
+        <div id="door1" class="door" data-link="minijuegos/laberinto.html">🎃</div>
+        <div id="door2" class="door" data-link="minijuegos/diferencias.html">🧟</div>
+        <div id="door3" class="door" data-link="minijuegos/puzzle.html">🧩</div>
+        <div id="door4" class="door" data-link="minijuegos/ahorcado.html">💀</div>
+    </div>
 
-  <div id="instructions">
-    Usa las flechas o WASD para mover al personaje. ¡Entra en las puertas para jugar!
-  </div>
+    <div id="instructions">
+        Usa las flechas o WASD para moverte. Acércate a una puerta para entrar al minijuego.
+    </div>
 
-  <script>
-    const player = document.getElementById("player");
-    let posX = 100;
-    let posY = 100;
-    const speed = 10;
+    <script>
+        const player = document.getElementById("player");
+        const doors = document.querySelectorAll(".door");
+        let posX = 100;
+        let posY = 100;
+        const speed = 10;
 
-    document.addEventListener("keydown", (e) => {
-      switch (e.key) {
-        case "ArrowUp":
-        case "w":
-          posY -= speed;
-          break;
-        case "ArrowDown":
-        case "s":
-          posY += speed;
-          break;
-        case "ArrowLeft":
-        case "a":
-          posX -= speed;
-          break;
-        case "ArrowRight":
-        case "d":
-          posX += speed;
-          break;
-      }
+        document.addEventListener("keydown", (e) => {
+            switch (e.key) {
+                case "ArrowUp":
+                case "w":
+                    posY -= speed;
+                    break;
+                case "ArrowDown":
+                case "s":
+                    posY += speed;
+                    break;
+                case "ArrowLeft":
+                case "a":
+                    posX -= speed;
+                    break;
+                case "ArrowRight":
+                case "d":
+                    posX += speed;
+                    break;
+            }
 
-      // Limites de movimiento
-      posX = Math.max(0, Math.min(posX, 760));
-      posY = Math.max(0, Math.min(posY, 560));
+            posX = Math.max(0, Math.min(posX, 760));
+            posY = Math.max(0, Math.min(posY, 560));
 
-      player.style.left = posX + "px";
-      player.style.top = posY + "px";
-    });
-  </script>
+            player.style.left = posX + "px";
+            player.style.top = posY + "px";
+
+            checkCollision();
+        });
+
+        function isColliding(rect1, rect2) {
+            return !(
+                rect1.right < rect2.left ||
+                rect1.left > rect2.right ||
+                rect1.bottom < rect2.top ||
+                rect1.top > rect2.bottom
+            );
+        }
+
+        let entered = false; // evita entrar dos veces
+
+        function checkCollision() {
+            if (entered) return;
+
+            const playerRect = player.getBoundingClientRect();
+
+            doors.forEach(door => {
+                const doorRect = door.getBoundingClientRect();
+                if (isColliding(playerRect, doorRect)) {
+                    const link = door.getAttribute("data-link");
+                    entered = true;
+                    setTimeout(() => {
+                        window.location.href = link;
+                    }, 200); // pequeña pausa antes de ir al minijuego
+                }
+            });
+        }
+    </script>
 </body>
-</html>
 
+</html>
