@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Encuentra las Diferencias - Zombie Room</title>
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      color: white;
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 20px;
+    }
+
+    #game-container {
+      position: relative;
+      width: 800px;
+      height: 400px;
+      margin: 20px auto;
+      background-color: #111;
+      border: 3px solid crimson;
+    }
+
+    .image {
+      position: absolute;
+      width: 50%;
+      height: 100%;
+      top: 0;
+      background-size: cover;
+      background-position: center;
+    }
+
+    #left-image {
+      left: 0;
+      background-image: url('https://i.imgur.com/GnpVxos.jpg'); /* Imagen 1 */
+    }
+
+    #right-image {
+      right: 0;
+      background-image: url('https://i.imgur.com/N8qwrGn.jpg'); /* Imagen 2 con diferencias */
+    }
+
+    .difference-spot {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 2px solid lime;
+      background-color: rgba(0, 255, 0, 0.3);
+      pointer-events: auto;
+    }
+
+    #jumpscare {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+
+    #jumpscare img {
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    #win-message {
+      margin-top: 30px;
+      font-size: 24px;
+      color: lime;
+      display: none;
+    }
+
+    #back-btn {
+      display: none;
+      margin-top: 20px;
+      font-size: 18px;
+      background: crimson;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+    }
+
+    #back-btn:hover {
+      background: darkred;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🧟‍♂️ Sala del Zombie - Encuentra las 3 diferencias</h1>
+
+  <div id="game-container">
+    <div id="left-image" class="image"></div>
+    <div id="right-image" class="image">
+      <!-- Áreas clicables de diferencia -->
+      <div class="difference-spot" style="top: 50px; left: 100px;"></div>
+      <div class="difference-spot" style="top: 200px; left: 200px;"></div>
+      <div class="difference-spot" style="top: 300px; left: 350px;"></div>
+    </div>
+  </div>
+
+  <div id="win-message">✅ ¡Has encontrado todas las diferencias! Has ganado una ficha.</div>
+  <button id="back-btn">Volver al pasillo</button>
+
+  <div id="jumpscare">
+    <img src="https://i.imgur.com/2XhEZ0I.gif" alt="Susto">
+  </div>
+
+  <script>
+    let found = 0;
+    let clicksErroneos = 0;
+    const spots = document.querySelectorAll('.difference-spot');
+    const winMessage = document.getElementById('win-message');
+    const backBtn = document.getElementById('back-btn');
+    const jumpscare = document.getElementById('jumpscare');
+
+    // Marcar como completado y volver
+    function ganar() {
+      localStorage.setItem('minijuego_zombie', 'true');
+      winMessage.style.display = 'block';
+      backBtn.style.display = 'inline-block';
+    }
+
+    // Eventos de clic en diferencias
+    spots.forEach(spot => {
+      spot.addEventListener('click', (e) => {
+        if (!spot.classList.contains('found')) {
+          spot.classList.add('found');
+          spot.style.border = '2px solid white';
+          spot.style.backgroundColor = 'rgba(255, 255, 255, 0.5)';
+          found++;
+          if (found === 3) {
+            ganar();
+          }
+        }
+        e.stopPropagation();
+      });
+    });
+
+    // Si hace clic en otro lugar → error
+    document.getElementById('right-image').addEventListener('click', (e) => {
+      if (!e.target.classList.contains('difference-spot')) {
+        clicksErroneos++;
+        if (clicksErroneos >= 3) {
+          jumpscare.style.display = 'flex';
+          setTimeout(() => {
+            jumpscare.style.display = 'none';
+            clicksErroneos = 0;
+          }, 1500);
+        }
+      }
+    });
+
+    // Volver al mapa
+    backBtn.addEventListener('click', () => {
+      window.location.href = '../index.html';
+    });
+  </script>
+
+</body>
+</html>
