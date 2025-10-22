@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>💀 Sala del Ahorcado de Miedo</title>
@@ -11,9 +12,11 @@
       font-family: Arial, sans-serif;
       text-align: center;
     }
+
     h1 {
       margin: 20px;
     }
+
     #game-container {
       max-width: 800px;
       margin: 20px auto;
@@ -21,11 +24,13 @@
       background-color: #111;
       border: 3px solid crimson;
     }
+
     #word-display {
       font-size: 32px;
       letter-spacing: 10px;
       margin: 20px 0;
     }
+
     #keyboard {
       display: flex;
       flex-wrap: wrap;
@@ -33,6 +38,7 @@
       gap: 10px;
       margin-bottom: 20px;
     }
+
     .key {
       width: 40px;
       height: 40px;
@@ -44,26 +50,31 @@
       user-select: none;
       border-radius: 5px;
     }
+
     .key.disabled {
       background: #555;
       cursor: default;
     }
+
     #info {
       font-size: 18px;
       margin-bottom: 10px;
     }
+
     #win-message {
       font-size: 24px;
       color: lime;
       display: none;
       margin-top: 20px;
     }
+
     #lose-message {
       font-size: 24px;
       color: red;
       display: none;
       margin-top: 20px;
     }
+
     #back-btn {
       margin-top: 20px;
       font-size: 18px;
@@ -74,25 +85,31 @@
       cursor: pointer;
       display: none;
     }
+
     #back-btn:hover {
       background: darkred;
     }
+
     #jumpscare {
       position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
       background: black;
       display: none;
       justify-content: center;
       align-items: center;
       z-index: 100;
     }
+
     #jumpscare img {
       max-width: 100%;
       max-height: 100%;
     }
   </style>
 </head>
+
 <body>
 
   <h1>💀 Sala del Ahorcado de Miedo</h1>
@@ -108,7 +125,7 @@
   <button id="back-btn">Volver al pasillo</button>
 
   <div id="jumpscare">
-    <img src="https://i.imgur.com/2XhEZ0I.gif" alt="¡Susto esqueleto!" />
+    <img src="https://gifdb.com/images/high/scary-dead-monster-00ujv0tu2fu0ihcb.gif" alt="¡Susto esqueleto!" />
   </div>
 
   <!-- Sonido del susto -->
@@ -164,7 +181,7 @@
       btn.classList.add("disabled");
       btn.style.pointerEvents = "none";
       if (palabraArray.includes(letra)) {
-        for (let i=0; i<palabraArray.length; i++) {
+        for (let i = 0; i < palabraArray.length; i++) {
           if (palabraArray[i] === letra) {
             displayArray[i] = letra;
           }
@@ -193,7 +210,7 @@
       juegoTerminado = true;
       loseMessage.style.display = "block";
       jumpscare.style.display = "flex";
-      screamAudio.play().catch(() => {});
+      screamAudio.play().catch(() => { });
       setTimeout(() => {
         jumpscare.style.display = "none";
       }, 1500);
@@ -207,6 +224,5 @@
     iniciar();
   </script>
 </body>
-</html>
 
-<---HOLA--->
+</html>
