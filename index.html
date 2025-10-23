@@ -162,18 +162,15 @@
 
             const playerRect = player.getBoundingClientRect();
 
+            // Al cargar la página, desactiva puertas ya usadas
             doors.forEach(door => {
-                if (door.classList.contains("used")) return;
-
-                const doorRect = door.getBoundingClientRect();
-                if (isColliding(playerRect, doorRect)) {
-                    const link = door.getAttribute("data-link");
-                    entered = true;
-                    setTimeout(() => {
-                        window.location.href = link;
-                    }, 200);
+                const id = door.getAttribute('data-id');
+                const completed = localStorage.getItem('minijuego_' + id);
+                if (completed === 'true') {
+                    door.classList.add('used');
                 }
             });
+
         }
     </script>
 </body>
