@@ -198,11 +198,13 @@
 
                 if (checkWin()) {
                     message.textContent = '🎉 ¡Felicidades! Completaste el puzzle de Halloween.';
-                    backButton.style.display = 'inline-block'; // mostrar botón al ganar
+                    localStorage.setItem('minijuego_puzzle', 'true');
+                    backButton.style.display = 'inline-block';
                 } else {
                     message.textContent = '';
-                    backButton.style.display = 'none'; // ocultar botón si no está completo
+                    backButton.style.display = 'none';
                 }
+
             }
         }
 
