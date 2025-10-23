@@ -188,6 +188,8 @@
         function showWinMessage() {
             winMessage.classList.add('visible');
             gameWon = true;
+            localStorage.setItem('minijuego_laberinto', 'true');
+
 
             // 🔹 Guardar progreso del minijuego en localStorage
             localStorage.setItem('minijuego_laberinto', 'true');
