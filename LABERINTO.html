@@ -188,7 +188,11 @@
         function showWinMessage() {
             winMessage.classList.add('visible');
             gameWon = true;
+
+            // 🔹 Guardar progreso del minijuego en localStorage
+            localStorage.setItem('minijuego_laberinto', 'true');
         }
+
 
         function resetGame() {
             grid = generateMaze(cols, rows);
