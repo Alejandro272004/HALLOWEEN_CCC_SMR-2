@@ -110,35 +110,39 @@
         const speed = 10;
         let entered = false;
 
-        // Al cargar la página, desactiva puertas ya usadas
+        // Desactivar y poner gris las puertas completadas
         doors.forEach(door => {
             const id = door.getAttribute('data-id');
             const completed = localStorage.getItem('minijuego_' + id);
             if (completed === 'true') {
                 door.classList.add('used');
+                door.style.pointerEvents = 'none'; // bloquea click y colisión
+            } else {
+                door.style.pointerEvents = 'auto'; // aseguramos que la puerta activa funcione
             }
         });
 
         document.addEventListener("keydown", (e) => {
-            switch (e.key) {
-                case "ArrowUp":
+            switch (e.key.toLowerCase()) {
+                case "arrowup":
                 case "w":
                     posY -= speed;
                     break;
-                case "ArrowDown":
+                case "arrowdown":
                 case "s":
                     posY += speed;
                     break;
-                case "ArrowLeft":
+                case "arrowleft":
                 case "a":
                     posX -= speed;
                     break;
-                case "ArrowRight":
+                case "arrowright":
                 case "d":
                     posX += speed;
                     break;
             }
 
+            // Limitar posición para que no salga del área
             posX = Math.max(0, Math.min(posX, 760));
             posY = Math.max(0, Math.min(posY, 560));
 
@@ -162,16 +166,23 @@
 
             const playerRect = player.getBoundingClientRect();
 
-            // Al cargar la página, desactiva puertas ya usadas
-            doors.forEach(door => {
-                const id = door.getAttribute('data-id');
-                const completed = localStorage.getItem('minijuego_' + id);
-                if (completed === 'true') {
-                    door.classList.add('used');
-                }
-            });
+            for (const door of doors) {
+                if (door.classList.contains("used")) continue;
 
+                const doorRect = door.getBoundingClientRect();
+
+                if (isColliding(playerRect, doorRect)) {
+                    const link = door.getAttribute("data-link");
+                    entered = true;
+
+                    setTimeout(() => {
+                        window.location.href = link;
+                    }, 200);
+                    break; // salimos del loop tras detectar colisión
+                }
+            }
         }
+
     </script>
 </body>
 
