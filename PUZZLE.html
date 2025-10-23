@@ -110,6 +110,25 @@
             font-size: 1.2em;
             color: lightgreen;
         }
+
+        #back-button {
+            display: none;
+            /* oculto por defecto */
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #d32f2f;
+            /* rojo fuerte */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #back-button:hover {
+            background-color: #b71c1c;
+        }
     </style>
 </head>
 
@@ -119,10 +138,12 @@
     <p>Haz clic en dos piezas para intercambiarlas y completar la imagen.</p>
     <div id="puzzle"></div>
     <div id="message"></div>
+    <button id="back-button">Volver al pasillo</button>
 
     <script>
         const puzzle = document.getElementById('puzzle');
         const message = document.getElementById('message');
+        const backButton = document.getElementById('back-button');
 
         // La posición correcta para cada pieza: 0 a 15
         let positions = [...Array(16).keys()];
@@ -175,11 +196,23 @@
 
                 if (checkWin()) {
                     message.textContent = '🎉 ¡Felicidades! Completaste el puzzle de Halloween.';
+                    backButton.style.display = 'inline-block'; // mostrar botón al ganar
                 } else {
                     message.textContent = '';
+                    backButton.style.display = 'none'; // ocultar botón si no está completo
                 }
             }
         }
+
+        // Evento para el botón "Volver al pasillo"
+        backButton.addEventListener('click', () => {
+            // Aquí puedes definir la acción al hacer clic, por ejemplo:
+            // Redirigir a otra página:
+            // window.location.href = 'pasillo.html';
+
+            // O solo un alert:
+            alert('Volviendo al pasillo...');
+        });
 
         // Iniciar
         positions = shuffle(positions);
