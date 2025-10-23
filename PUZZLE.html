@@ -1,136 +1,191 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Minijuego Puzzle Halloween</title>
-<style>
-  body {
-    background: #121212;
-    color: #fff;
-    font-family: 'Arial', sans-serif;
-    text-align: center;
-    padding: 20px;
-  }
-  h1 {
-    margin-bottom: 20px;
-    color: orange;
-  }
-  #puzzle {
-    width: 320px;
-    height: 320px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: repeat(4, 80px);
-    grid-template-rows: repeat(4, 80px);
-    gap: 2px;
-    border: 3px solid orange;
-  }
-  .piece {
-    width: 80px;
-    height: 80px;
-    background-image: url('https://i.imgur.com/6vVyqBD.png'); /* Imagen de calabaza 320x320 */
-    background-size: 320px 320px;
-    border: 1px solid #444;
-    cursor: pointer;
-  }
-  /* Posiciones de cada pieza según su índice */
-  .piece[data-pos="0"] { background-position: 0 0; }
-  .piece[data-pos="1"] { background-position: -80px 0; }
-  .piece[data-pos="2"] { background-position: -160px 0; }
-  .piece[data-pos="3"] { background-position: -240px 0; }
-  .piece[data-pos="4"] { background-position: 0 -80px; }
-  .piece[data-pos="5"] { background-position: -80px -80px; }
-  .piece[data-pos="6"] { background-position: -160px -80px; }
-  .piece[data-pos="7"] { background-position: -240px -80px; }
-  .piece[data-pos="8"] { background-position: 0 -160px; }
-  .piece[data-pos="9"] { background-position: -80px -160px; }
-  .piece[data-pos="10"] { background-position: -160px -160px; }
-  .piece[data-pos="11"] { background-position: -240px -160px; }
-  .piece[data-pos="12"] { background-position: 0 -240px; }
-  .piece[data-pos="13"] { background-position: -80px -240px; }
-  .piece[data-pos="14"] { background-position: -160px -240px; }
-  .piece[data-pos="15"] { background-position: -240px -240px; }
 
-  #message {
-    margin-top: 20px;
-    font-size: 1.2em;
-    color: lightgreen;
-  }
-</style>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Minijuego Puzzle Halloween</title>
+    <style>
+        body {
+            background: #121212;
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: orange;
+        }
+
+        #puzzle {
+            width: 320px;
+            height: 320px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(4, 80px);
+            grid-template-rows: repeat(4, 80px);
+            gap: 2px;
+            border: 3px solid orange;
+        }
+
+        .piece {
+            width: 80px;
+            height: 80px;
+            background-image: url('https://wallpapers.com/images/hd/1920-x-1080-halloween-zxh730v3b6q28fa1.jpg');
+            /* Imagen de calabaza 320x320 */
+            background-size: 320px 320px;
+            border: 1px solid #444;
+            cursor: pointer;
+        }
+
+        /* Posiciones de cada pieza según su índice */
+        .piece[data-pos="0"] {
+            background-position: 0 0;
+        }
+
+        .piece[data-pos="1"] {
+            background-position: -80px 0;
+        }
+
+        .piece[data-pos="2"] {
+            background-position: -160px 0;
+        }
+
+        .piece[data-pos="3"] {
+            background-position: -240px 0;
+        }
+
+        .piece[data-pos="4"] {
+            background-position: 0 -80px;
+        }
+
+        .piece[data-pos="5"] {
+            background-position: -80px -80px;
+        }
+
+        .piece[data-pos="6"] {
+            background-position: -160px -80px;
+        }
+
+        .piece[data-pos="7"] {
+            background-position: -240px -80px;
+        }
+
+        .piece[data-pos="8"] {
+            background-position: 0 -160px;
+        }
+
+        .piece[data-pos="9"] {
+            background-position: -80px -160px;
+        }
+
+        .piece[data-pos="10"] {
+            background-position: -160px -160px;
+        }
+
+        .piece[data-pos="11"] {
+            background-position: -240px -160px;
+        }
+
+        .piece[data-pos="12"] {
+            background-position: 0 -240px;
+        }
+
+        .piece[data-pos="13"] {
+            background-position: -80px -240px;
+        }
+
+        .piece[data-pos="14"] {
+            background-position: -160px -240px;
+        }
+
+        .piece[data-pos="15"] {
+            background-position: -240px -240px;
+        }
+
+        #message {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: lightgreen;
+        }
+    </style>
 </head>
+
 <body>
 
-<h1>Puzzle de Halloween</h1>
-<p>Haz clic en dos piezas para intercambiarlas y completar la imagen.</p>
-<div id="puzzle"></div>
-<div id="message"></div>
+    <h1>Puzzle de Halloween</h1>
+    <p>Haz clic en dos piezas para intercambiarlas y completar la imagen.</p>
+    <div id="puzzle"></div>
+    <div id="message"></div>
 
-<script>
-  const puzzle = document.getElementById('puzzle');
-  const message = document.getElementById('message');
-  
-  // La posición correcta para cada pieza: 0 a 15
-  let positions = [...Array(16).keys()];
-  
-  // Barajar el arreglo con Fisher-Yates
-  function shuffle(array) {
-    for(let i = array.length -1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i+1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-  }
-  
-  // Estado de selección para intercambio
-  let firstSelected = null;
+    <script>
+        const puzzle = document.getElementById('puzzle');
+        const message = document.getElementById('message');
 
-  // Crear piezas en pantalla según posiciones
-  function drawPieces() {
-    puzzle.innerHTML = '';
-    positions.forEach((pos, index) => {
-      const piece = document.createElement('div');
-      piece.className = 'piece';
-      piece.setAttribute('data-pos', pos);
-      piece.setAttribute('data-index', index);
-      piece.addEventListener('click', onPieceClick);
-      puzzle.appendChild(piece);
-    });
-  }
+        // La posición correcta para cada pieza: 0 a 15
+        let positions = [...Array(16).keys()];
 
-  // Comprobar si puzzle está completo
-  function checkWin() {
-    for(let i=0; i < positions.length; i++) {
-      if(positions[i] !== i) return false;
-    }
-    return true;
-  }
+        // Barajar el arreglo con Fisher-Yates
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
 
-  // Manejar click en piezas
-  function onPieceClick(e) {
-    const index = parseInt(e.target.getAttribute('data-index'));
+        // Estado de selección para intercambio
+        let firstSelected = null;
 
-    if(firstSelected === null) {
-      firstSelected = index;
-      e.target.style.border = '3px solid lightgreen';
-    } else {
-      // Intercambiar piezas
-      [positions[firstSelected], positions[index]] = [positions[index], positions[firstSelected]];
-      firstSelected = null;
-      drawPieces();
+        // Crear piezas en pantalla según posiciones
+        function drawPieces() {
+            puzzle.innerHTML = '';
+            positions.forEach((pos, index) => {
+                const piece = document.createElement('div');
+                piece.className = 'piece';
+                piece.setAttribute('data-pos', pos);
+                piece.setAttribute('data-index', index);
+                piece.addEventListener('click', onPieceClick);
+                puzzle.appendChild(piece);
+            });
+        }
 
-      if(checkWin()) {
-        message.textContent = '🎉 ¡Felicidades! Completaste el puzzle de Halloween.';
-      } else {
-        message.textContent = '';
-      }
-    }
-  }
+        // Comprobar si puzzle está completo
+        function checkWin() {
+            for (let i = 0; i < positions.length; i++) {
+                if (positions[i] !== i) return false;
+            }
+            return true;
+        }
 
-  // Iniciar
-  positions = shuffle(positions);
-  drawPieces();
-</script>
+        // Manejar click en piezas
+        function onPieceClick(e) {
+            const index = parseInt(e.target.getAttribute('data-index'));
+
+            if (firstSelected === null) {
+                firstSelected = index;
+                e.target.style.border = '3px solid lightgreen';
+            } else {
+                // Intercambiar piezas
+                [positions[firstSelected], positions[index]] = [positions[index], positions[firstSelected]];
+                firstSelected = null;
+                drawPieces();
+
+                if (checkWin()) {
+                    message.textContent = '🎉 ¡Felicidades! Completaste el puzzle de Halloween.';
+                } else {
+                    message.textContent = '';
+                }
+            }
+        }
+
+        // Iniciar
+        positions = shuffle(positions);
+        drawPieces();
+    </script>
 
 </body>
+
 </html>
