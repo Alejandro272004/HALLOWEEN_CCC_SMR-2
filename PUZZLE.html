@@ -138,7 +138,9 @@
     <p>Haz clic en dos piezas para intercambiarlas y completar la imagen.</p>
     <div id="puzzle"></div>
     <div id="message"></div>
-    <button id="back-button">Volver al pasillo</button>
+    <!-- botón con tabindex -->
+    <button id="back-button" tabindex="0">Volver al pasillo</button>
+
 
     <script>
         const puzzle = document.getElementById('puzzle');
@@ -206,13 +208,9 @@
 
         // Evento para el botón "Volver al pasillo"
         backButton.addEventListener('click', () => {
-            // Aquí puedes definir la acción al hacer clic, por ejemplo:
-            // Redirigir a otra página:
-            // window.location.href = 'pasillo.html';
-
-            // O solo un alert:
-            alert('Volviendo al pasillo...');
+            window.location.href = 'index.html';
         });
+
 
         // Iniciar
         positions = shuffle(positions);
