@@ -44,7 +44,6 @@
             font-size: 30px;
             text-align: center;
             line-height: 60px;
-            text-decoration: none;
             border-radius: 10px;
             z-index: 5;
         }
@@ -66,7 +65,6 @@
             left: 100px;
         }
 
-        /* 🧟 */
         #door3 {
             top: 400px;
             left: 600px;
@@ -77,13 +75,13 @@
             left: 300px;
         }
 
+        /* 🔒 Puerta secreta (botón azul dentro del área del juego) */
         #secret-door {
             position: absolute;
             display: none;
             width: 60px;
             height: 60px;
             top: 500px;
-            /* posición dentro del cuadrado */
             left: 350px;
             background-color: rgba(0, 0, 255, 0.5);
             border: 2px solid blue;
@@ -105,37 +103,33 @@
 </head>
 
 <body>
-
     <div id="game-area">
         <div id="player"></div>
 
-        <!-- Puertas a minijuegos -->
+        <!-- Puertas normales -->
         <div id="door1" class="door" data-link="LABERINTO.html" data-id="laberinto">🎃</div>
         <div id="door2" class="door" data-link="DIFERENCIAS.html" data-id="zombie">🧟</div>
         <div id="door3" class="door" data-link="PUZZLE.html" data-id="puzzle">🧩</div>
         <div id="door4" class="door" data-link="ahorcado_de_miedo.html" data-id="ahorcado">💀</div>
+
+        <!-- ✅ Puerta secreta dentro del área -->
+        <div id="secret-door" class="door">🔒</div>
     </div>
 
     <div id="instructions">
         Usa las flechas o WASD para moverte. Entra en una puerta solo una vez.
     </div>
 
-    <!-- PUERTA SECRETA Y ELEMENTOS NUEVOS -->
-
-    <!-- Puerta secreta -->
-    <div id="secret-door" class="door"
-        style="display:none; top: 500px; left: 350px; background-color: rgba(0,0,255,0.5); border-color: blue;">🔒</div>
-
     <!-- Mostrar código en pantalla -->
-    <div id="code-display" style="position: fixed; top: 20px; right: 20px; 
-        background: rgba(0,0,0,0.7); color: white; padding: 10px 15px; 
+    <div id="code-display" style="position: fixed; top: 20px; right: 20px;
+        background: rgba(0,0,0,0.7); color: white; padding: 10px 15px;
         font-size: 20px; border-radius: 10px; display: none; z-index: 20;">
         Código: <span id="code-numbers"></span>
     </div>
 
-    <!-- Mini menú para ingresar código -->
-    <div id="code-menu" style="display:none; position: fixed; top: 50%; left: 50%; 
-        transform: translate(-50%, -50%); background: #222; padding: 20px; border-radius: 15px; 
+    <!-- Menú para ingresar código -->
+    <div id="code-menu" style="display:none; position: fixed; top: 50%; left: 50%;
+        transform: translate(-50%, -50%); background: #222; padding: 20px; border-radius: 15px;
         color: white; box-shadow: 0 0 15px blue; z-index: 30; width: 300px; text-align: center;">
         <h3>Introduce el código</h3>
         <input type="text" id="code-input" maxlength="4"
@@ -150,6 +144,8 @@
     <script>
         const player = document.getElementById("player");
         const doors = document.querySelectorAll(".door");
+        const secretDoor = document.getElementById("secret-door");
+
         let posX = 100;
         let posY = 100;
         const speed = 10;
@@ -158,82 +154,60 @@
         // Desactivar y poner gris las puertas completadas
         doors.forEach(door => {
             const id = door.getAttribute('data-id');
+            if (!id) return; // evita incluir la puerta secreta
             const completed = localStorage.getItem('minijuego_' + id);
             if (completed === 'true') {
                 door.classList.add('used');
-                door.style.pointerEvents = 'none'; // bloquea click y colisión
-            } else {
-                door.style.pointerEvents = 'auto'; // aseguramos que la puerta activa funcione
+                door.style.pointerEvents = 'none';
             }
         });
 
         document.addEventListener("keydown", (e) => {
             switch (e.key.toLowerCase()) {
                 case "arrowup":
-                case "w":
-                    posY -= speed;
-                    break;
+                case "w": posY -= speed; break;
                 case "arrowdown":
-                case "s":
-                    posY += speed;
-                    break;
+                case "s": posY += speed; break;
                 case "arrowleft":
-                case "a":
-                    posX -= speed;
-                    break;
+                case "a": posX -= speed; break;
                 case "arrowright":
-                case "d":
-                    posX += speed;
-                    break;
+                case "d": posX += speed; break;
             }
 
-            // Limitar posición para que no salga del área
             posX = Math.max(0, Math.min(posX, 760));
             posY = Math.max(0, Math.min(posY, 560));
-
             player.style.left = posX + "px";
             player.style.top = posY + "px";
 
             checkCollision();
-
-            // También chequeamos la puerta secreta
             checkSecretDoorCollision();
         });
 
         function isColliding(rect1, rect2) {
-            return !(
-                rect1.right < rect2.left ||
+            return !(rect1.right < rect2.left ||
                 rect1.left > rect2.right ||
                 rect1.bottom < rect2.top ||
-                rect1.top > rect2.bottom
-            );
+                rect1.top > rect2.bottom);
         }
 
         function checkCollision() {
             if (entered) return;
-
             const playerRect = player.getBoundingClientRect();
 
             for (const door of doors) {
                 if (door.classList.contains("used")) continue;
-
                 const doorRect = door.getBoundingClientRect();
-
                 if (isColliding(playerRect, doorRect)) {
                     const link = door.getAttribute("data-link");
-                    entered = true;
-
-                    setTimeout(() => {
-                        window.location.href = link;
-                    }, 200);
-                    break; // salimos del loop tras detectar colisión
+                    if (link) {
+                        entered = true;
+                        setTimeout(() => window.location.href = link, 200);
+                    }
                 }
             }
         }
 
-        // --- Código para puerta secreta y menú ---
-
-        const secretDoor = document.getElementById("secret-door");
+        // ---- Código secreto ----
         const codeDisplay = document.getElementById("code-display");
         const codeNumbersSpan = document.getElementById("code-numbers");
         const codeMenu = document.getElementById("code-menu");
@@ -247,7 +221,6 @@
 
         let secretCode = '';
         if (completedAll) {
-            // Generar código aleatorio de 4 números
             for (let i = 0; i < 4; i++) {
                 secretCode += Math.floor(Math.random() * 10);
             }
@@ -260,13 +233,9 @@
 
         function checkSecretDoorCollision() {
             if (!completedAll || codeMenuOpen) return;
-
             const playerRect = player.getBoundingClientRect();
             const doorRect = secretDoor.getBoundingClientRect();
-
-            if (isColliding(playerRect, doorRect)) {
-                openCodeMenu();
-            }
+            if (isColliding(playerRect, doorRect)) openCodeMenu();
         }
 
         function openCodeMenu() {
@@ -288,26 +257,15 @@
             if (val === secretCode) {
                 codeMessage.style.color = 'lightgreen';
                 codeMessage.textContent = '¡Código correcto! ¡Has desbloqueado el final secreto!';
-                setTimeout(() => {
-                    alert('¡Felicidades! Has terminado el juego.');
-                    // Aquí puedes redirigir o desbloquear algo más
-                    // window.location.href = 'final.html';
-                }, 1000);
+                setTimeout(() => alert('🎉 ¡Felicidades! Has terminado el juego. 🏁'), 1000);
             } else {
                 codeMessage.style.color = 'red';
                 codeMessage.textContent = 'Código incorrecto. Intenta de nuevo.';
             }
         });
 
-        codeCancel.addEventListener('click', () => {
-            closeCodeMenu();
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (codeMenuOpen && e.key === "Escape") {
-                closeCodeMenu();
-            }
-        });
+        codeCancel.addEventListener('click', closeCodeMenu);
+        document.addEventListener('keydown', (e) => { if (codeMenuOpen && e.key === "Escape") closeCodeMenu(); });
     </script>
 </body>
 
