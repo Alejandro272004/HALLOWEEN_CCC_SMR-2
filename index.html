@@ -3,20 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRIVIAL BRUTAL - COMPETICIÓN</title>
+    <title>TRIVIAL BRUTAL DIARIO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+
     <style>
         :root {
-            --bg: #0a0a0c;
-            --card: #16161e;
+            --bg: #08080a;
+            --card: #12121a;
             --accent: #00f2ff;
             --success: #00ff88;
             --error: #ff3e3e;
             --gold: #ffcc00;
+            --text: #ffffff;
         }
 
         body {
             background: var(--bg);
-            color: white;
+            color: var(--text);
             font-family: 'Inter', sans-serif;
             margin: 0;
             display: flex;
@@ -27,30 +32,22 @@
 
         .container {
             width: 95%;
-            max-width: 500px;
+            max-width: 480px;
             background: var(--card);
             border-radius: 24px;
             padding: 30px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
             border: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .screen { display: none; }
-        .active { display: block; animation: fadeIn 0.4s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* INPUTS Y BOTONES */
-        input[type="text"], input[type="date"] {
-            width: 100%;
-            padding: 12px;
-            background: #222;
-            border: 1px solid #444;
-            color: white;
-            border-radius: 10px;
-            margin-top: 10px;
             box-sizing: border-box;
         }
 
+        .screen { display: none; }
+        .active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        h1 { font-weight: 900; letter-spacing: -1px; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
+        
+        /* Botones y Inputs */
         .btn-main {
             width: 100%;
             padding: 18px;
@@ -62,104 +59,133 @@
             margin-top: 20px;
             cursor: pointer;
             text-transform: uppercase;
+            transition: 0.3s;
+        }
+        .btn-main:hover { transform: scale(1.02); filter: brightness(1.1); }
+        .btn-main:disabled { background: #333; color: #666; cursor: not-allowed; }
+
+        input[type="text"], input[type="date"] {
+            width: 100%;
+            padding: 14px;
+            background: #1e1e2a;
+            border: 1px solid #333;
+            color: white;
+            border-radius: 10px;
+            margin-top: 10px;
+            box-sizing: border-box;
+            outline: none;
         }
 
-        .btn-main:disabled { background: #333; cursor: not-allowed; }
-
-        /* JUEGO */
+        /* Trivia */
         .opt-btn {
             width: 100%;
-            padding: 15px;
-            margin-bottom: 10px;
-            background: #1e1e2a;
+            padding: 16px;
+            margin-bottom: 12px;
+            background: #1c1c26;
             color: white;
             text-align: left;
             border-radius: 12px;
             border: 2px solid transparent;
             cursor: pointer;
+            transition: 0.2s;
         }
         .correct { background: var(--success) !important; color: black; font-weight: bold; }
         .wrong { background: var(--error) !important; }
 
-        /* RANKING */
-        .leaderboard { margin-top: 20px; background: #000; border-radius: 12px; padding: 15px; }
-        .entry { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #222; font-size: 0.9rem; }
-        .rank { color: var(--gold); margin-right: 10px; }
+        /* Leaderboard */
+        .leaderboard { margin-top: 30px; background: rgba(0,0,0,0.3); border-radius: 15px; padding: 15px; border: 1px solid #222; }
+        .entry { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; }
+        .entry:last-child { border: none; }
+        .rank { color: var(--gold); font-weight: bold; margin-right: 8px; }
 
-        .streak-fire { color: #ff8800; font-weight: bold; text-align: center; font-size: 1.2rem; }
+        .streak-fire { text-align: center; color: #ff8800; font-weight: 900; font-size: 1.2rem; margin-bottom: 10px; }
+        #timer { font-family: monospace; color: var(--accent); font-size: 1.2rem; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div id="screen-auth" class="screen">
-        <h1>Bienvenido</h1>
-        <p>Introduce tu nombre de guerrero para el Ranking:</p>
-        <input type="text" id="username-input" placeholder="Ej: TrivialMaster_99">
-        <button class="btn-main" onclick="saveName()">GUARDAR Y CONTINUAR</button>
+        <h1>Tu Nombre</h1>
+        <p style="opacity: 0.7;">Para entrar en el Ranking Mundial:</p>
+        <input type="text" id="username-input" placeholder="Escribe tu apodo...">
+        <button class="btn-main" onclick="saveName()">ENTRAR AL DESAFÍO</button>
     </div>
 
     <div id="screen-home" class="screen">
         <div class="streak-fire">🔥 RACHA: <span id="streak-num">0</span> DÍAS</div>
-        <h1 style="text-align: center;">TRIVIAL BRUTAL</h1>
-        <p id="welcome-user" style="text-align: center; opacity: 0.7;"></p>
+        <h1>Trivial Brutal</h1>
+        <p id="welcome-msg" style="opacity: 0.6; margin-bottom: 25px;"></p>
 
         <button id="play-today-btn" class="btn-main" onclick="initGame('today')">JUGAR RETO HOY</button>
         
         <div style="margin-top: 25px;">
-            <label style="font-size: 0.8rem;">REPASAR DÍAS PASADOS:</label>
-            <input type="date" id="calendar-input" onchange="checkDateValid()">
+            <label style="font-size: 0.8rem; opacity: 0.5;">REPASAR DÍAS ANTERIORES:</label>
+            <input type="date" id="calendar-input" onchange="initGame('calendar')">
         </div>
 
         <div class="leaderboard">
-            <h3 style="margin-top: 0; color: var(--accent);">RANKING LOCAL (Top 5)</h3>
-            <div id="lead-list"></div>
+            <h3 style="margin: 0 0 10px 0; font-size: 0.9rem; text-transform: uppercase; color: var(--accent);">Ranking Mundial (Hoy)</h3>
+            <div id="lead-list">Cargando clasificación...</div>
         </div>
     </div>
 
     <div id="screen-game" class="screen">
-        <div style="display: flex; justify-content: space-between;">
-            <span id="q-count">1/10</span>
-            <span id="timer" style="color: var(--accent); font-family: monospace;">00:00</span>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span id="q-count" style="font-weight: bold; opacity: 0.5;">1/10</span>
+            <span id="timer">00:00</span>
         </div>
-        <h2 id="q-text" style="min-height: 80px; margin-top: 20px;">---</h2>
+        <h2 id="q-text" style="margin: 20px 0; min-height: 80px;">---</h2>
         <div id="options-box"></div>
     </div>
 
     <div id="screen-result" class="screen">
-        <h2 style="text-align: center;">FIN DEL DESAFÍO</h2>
-        <div id="final-stats" style="font-size: 3rem; text-align: center; color: var(--accent);">0/10</div>
-        <p id="final-time" style="text-align: center; opacity: 0.8;"></p>
-        <button class="btn-main" onclick="location.reload()">VOLVER AL MENÚ</button>
+        <h2 style="text-align: center;">FIN DEL RETO</h2>
+        <div id="final-stats" style="font-size: 4rem; text-align: center; font-weight: 900; color: var(--accent);">0/10</div>
+        <p id="final-time" style="text-align: center; opacity: 0.7;"></p>
+        <button class="btn-main" onclick="location.reload()">VOLVER AL INICIO</button>
     </div>
 </div>
 
 <script>
+    // --- CONFIGURACIÓN FIREBASE (REEMPLAZA ESTO) ---
+    const firebaseConfig = {
+        apiKey: "TU_API_KEY",
+        authDomain: "tu-proyecto.firebaseapp.com",
+        databaseURL: "https://tu-proyecto.firebaseio.com",
+        projectId: "tu-proyecto",
+        storageBucket: "tu-proyecto.appspot.com",
+        messagingSenderId: "xxxx",
+        appId: "xxxx"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // --- BANCO DE PREGUNTAS (Añade hasta 7000 aquí) ---
     const masterBank = [
-        { q: "¿En qué año llegó el hombre a la Luna?", o: ["1965", "1969", "1971", "1962"], a: 1 },
-        { q: "¿Cuál es el país más pequeño del mundo?", o: ["Mónaco", "Malta", "Vaticano", "San Marino"], a: 2 },
-        { q: "¿Qué gas es vital para respirar?", o: ["Nitrógeno", "Helio", "Oxígeno", "Argón"], a: 2 },
-        { q: "¿Cuál es el río más largo de España?", o: ["Ebro", "Tajo", "Duero", "Guadalquivir"], a: 1 },
-        { q: "¿Quién pintó 'La última cena'?", o: ["Miguel Ángel", "Rafael", "Leonardo da Vinci", "Donatello"], a: 2 },
-        { q: "¿Cuál es el metal más ligero?", o: ["Litio", "Aluminio", "Cobre", "Plomo"], a: 0 },
-        { q: "¿En qué continente está el desierto del Sáhara?", o: ["Asia", "África", "América", "Oceanía"], a: 1 },
-        { q: "¿Qué idioma se habla en Brasil?", o: ["Español", "Portugués", "Inglés", "Francés"], a: 1 },
-        { q: "¿Cuál es la capital de Italia?", o: ["Milán", "Nápoles", "Roma", "Venecia"], a: 2 },
-        { q: "¿Qué planeta es el 'Planeta Rojo'?", o: ["Venus", "Marte", "Júpiter", "Saturno"], a: 1 },
-        { q: "¿Quién escribió Don Quijote?", o: ["Lope de Vega", "Quevedo", "Cervantes", "Góngora"], a: 2 }
+        { q: "¿Qué gas constituye el 78% de la atmósfera?", o: ["Oxígeno", "Nitrógeno", "Argón", "CO2"], a: 1 },
+        { q: "¿En qué año se hundió el Titanic?", o: ["1912", "1905", "1915", "1920"], a: 0 },
+        { q: "¿Cuál es el lugar más profundo de la Tierra?", o: ["Fosa de las Marianas", "Abismo de Java", "Fosa de Puerto Rico", "Tonga"], a: 0 },
+        { q: "¿Quién escribió 'Cien años de soledad'?", o: ["Vargas Llosa", "García Márquez", "Cortázar", "Borges"], a: 1 },
+        { q: "¿Qué planeta tiene más lunas?", o: ["Júpiter", "Saturno", "Marte", "Urano"], a: 1 },
+        { q: "¿Cuál es el hueso más largo del cuerpo?", o: ["Húmero", "Fémur", "Tibia", "Peroné"], a: 1 },
+        { q: "¿Qué país regaló la Estatua de la Libertad a EE.UU.?", o: ["España", "Francia", "Reino Unido", "Italia"], a: 1 },
+        { q: "¿Cuál es la capital de Australia?", o: ["Sídney", "Canberra", "Melbourne", "Perth"], a: 1 },
+        { q: "¿Quién pintó el techo de la Capilla Sixtina?", o: ["Leonardo", "Miguel Ángel", "Rafael", "Donatello"], a: 1 },
+        { q: "¿Cuál es el río más largo del mundo?", o: ["Nilo", "Amazonas", "Yangtsé", "Misisipi"], a: 1 }
     ];
 
     const hoy = new Date().toISOString().split("T")[0];
     let startTime, timerInterval, currentQuestions = [], currentStep = 0, score = 0, playingDate = "";
 
-    // 1. GESTIÓN DE IDENTIDAD
+    // 1. GESTIÓN USUARIO
     function checkAuth() {
         const name = localStorage.getItem('triviaUser');
-        if (!name) {
-            showScreen('screen-auth');
-        } else {
+        if (!name) showScreen('screen-auth');
+        else {
             showScreen('screen-home');
-            document.getElementById('welcome-user').innerText = `Hola, ${name}`;
+            document.getElementById('welcome-msg').innerText = `Listo para hoy, ${name}`;
+            document.getElementById('calendar-input').max = hoy;
             renderLeaderboard();
             checkTodayStatus();
         }
@@ -167,18 +193,16 @@
 
     function saveName() {
         const val = document.getElementById('username-input').value.trim();
-        if (val.length > 2) {
+        if (val.length >= 3) {
             localStorage.setItem('triviaUser', val);
             checkAuth();
-        } else {
-            alert("Nombre demasiado corto");
-        }
+        } else alert("Nombre muy corto.");
     }
 
-    // 2. LÓGICA DE JUEGO
+    // 2. LÓGICA JUEGO
     function initGame(mode) {
         playingDate = (mode === 'today') ? hoy : document.getElementById('calendar-input').value;
-        if (!playingDate) return alert("Selecciona una fecha");
+        if (!playingDate) return;
 
         const seed = playingDate.split("-").join("");
         currentQuestions = getDailySet(seed);
@@ -194,8 +218,8 @@
         let tempBank = [...masterBank];
         let s = parseInt(seed);
         for(let i=0; i<10; i++) {
-            let index = (s + (i * 17)) % tempBank.length;
-            set.push(tempBank[index]);
+            let index = (s + (i * 13)) % tempBank.length;
+            set.push(tempBank.splice(index % tempBank.length, 1)[0]);
         }
         return set;
     }
@@ -231,7 +255,7 @@
         const timeStr = document.getElementById('timer').innerText;
         showScreen('screen-result');
         document.getElementById('final-stats').innerText = `${score}/10`;
-        document.getElementById('final-time').innerText = `Tiempo: ${timeStr}`;
+        document.getElementById('final-time').innerText = `Tiempo total: ${timeStr}`;
 
         if(playingDate === hoy) {
             saveResult(score, timeStr);
@@ -239,20 +263,30 @@
         }
     }
 
-    // 3. RANKING Y RACHA
+    // 3. NUBE Y RANKING
     function saveResult(pts, time) {
         const name = localStorage.getItem('triviaUser');
-        let ranks = JSON.parse(localStorage.getItem('triviaRanks') || "[]");
-        
-        // Evitar duplicados del mismo día
-        const alreadyPlayedToday = ranks.some(r => r.date === hoy && r.user === name);
-        if(!alreadyPlayedToday) {
-            ranks.push({ user: name, points: pts, time: time, date: hoy });
-            // Ordenar: Más puntos, si empatan, menos tiempo
-            ranks.sort((a,b) => b.points - a.points || a.time.localeCompare(b.time));
-            localStorage.setItem('triviaRanks', JSON.stringify(ranks));
-        }
+        const recordID = name + "_" + hoy;
+        database.ref('ranking/' + recordID).set({
+            user: name, points: pts, time: time, date: hoy, timestamp: Date.now()
+        });
         localStorage.setItem('lastPlayed_' + hoy, 'true');
+    }
+
+    function renderLeaderboard() {
+        database.ref('ranking').orderByChild('date').equalTo(hoy).on('value', (snapshot) => {
+            let data = [];
+            snapshot.forEach(child => data.push(child.val()));
+            data.sort((a,b) => b.points - a.points || a.time.localeCompare(b.time));
+
+            document.getElementById('lead-list').innerHTML = data.slice(0, 10).map((r, i) => `
+                <div class="entry">
+                    <span><b class="rank">#${i+1}</b> ${r.user}</span>
+                    <span>${r.points}/10 <small style="opacity:0.5">${r.time}</small></span>
+                </div>
+            `).join('') || 'Nadie ha jugado hoy aún.';
+        });
+        document.getElementById('streak-num').innerText = localStorage.getItem('userStreak') || 0;
     }
 
     function updateStreak() {
@@ -268,25 +302,12 @@
         localStorage.setItem('lastDatePlayed', hoy);
     }
 
-    function renderLeaderboard() {
-        const ranks = JSON.parse(localStorage.getItem('triviaRanks') || "[]");
-        const list = document.getElementById('lead-list');
-        list.innerHTML = ranks.slice(0, 5).map((r, i) => `
-            <div class="entry">
-                <span><b class="rank">#${i+1}</b> ${r.user}</span>
-                <span>${r.points}/10 <small>(${r.time})</small></span>
-            </div>
-        `).join('') || '<p style="font-size:0.8rem; opacity:0.5;">No hay récords hoy.</p>';
-        
-        document.getElementById('streak-num').innerText = localStorage.getItem('userStreak') || 0;
-    }
-
     function checkTodayStatus() {
         if(localStorage.getItem('lastPlayed_' + hoy)) {
-            document.getElementById('play-today-btn').disabled = true;
-            document.getElementById('play-today-btn').innerText = "RETO COMPLETADO";
+            const btn = document.getElementById('play-today-btn');
+            btn.disabled = true;
+            btn.innerText = "YA JUGADO HOY";
         }
-        document.getElementById('calendar-input').max = hoy;
     }
 
     function startTimer() {
