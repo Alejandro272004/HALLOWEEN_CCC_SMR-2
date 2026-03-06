@@ -1,272 +1,225 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
-    <title>ScapeRun Halloween</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRIVIAL DIARIO BRUTAL</title>
     <style>
+        /* CSS: ESTILO BRUTAL Y MODERNO */
+        :root {
+            --bg: #0a0a0c;
+            --card: #15151e;
+            --accent: #00f2ff; /* Neón Cyan */
+            --error: #ff2e63;
+            --text: #ffffff;
+        }
+
         body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
             margin: 0;
-            background-color: black;
             overflow: hidden;
-            font-family: 'Arial', sans-serif;
         }
 
-        #game-area {
-            position: relative;
-            width: 800px;
-            height: 600px;
-            margin: 20px auto;
-            background: url('tu-fondo.jpg') no-repeat center center;
-            background-size: cover;
-            border: 5px solid crimson;
-            box-shadow: 0 0 20px red;
-        }
-
-        #player {
-            position: absolute;
-            top: 100px;
-            left: 100px;
-            width: 40px;
-            height: 40px;
-            background: url('https://i.imgur.com/VcM1Yfa.png') no-repeat center center;
-            background-size: cover;
-            z-index: 10;
-        }
-
-        .door {
-            position: absolute;
-            width: 60px;
-            height: 60px;
-            background-color: rgba(255, 0, 0, 0.4);
-            border: 2px solid white;
-            color: white;
-            font-size: 30px;
+        .container {
+            background: var(--card);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 242, 255, 0.1);
+            width: 90%;
+            max-width: 450px;
             text-align: center;
-            line-height: 60px;
-            border-radius: 10px;
-            z-index: 5;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
         }
 
-        .door.used {
-            background-color: rgba(100, 100, 100, 0.5);
-            border-color: gray;
-            pointer-events: none;
-            filter: grayscale(1);
+        h1 {
+            font-size: 1.5rem;
+            letter-spacing: 4px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            color: var(--accent);
+            text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
         }
 
-        #door1 {
-            top: 100px;
-            left: 600px;
+        .date-tag {
+            font-size: 0.8rem;
+            opacity: 0.6;
+            margin-bottom: 30px;
+            display: block;
         }
 
-        #door2 {
-            top: 300px;
-            left: 100px;
+        #question-text {
+            font-size: 1.2rem;
+            line-height: 1.4;
+            margin-bottom: 25px;
+            min-height: 70px;
         }
 
-        #door3 {
-            top: 400px;
-            left: 600px;
+        .options-grid {
+            display: grid;
+            gap: 12px;
         }
 
-        #door4 {
-            top: 200px;
-            left: 300px;
-        }
-
-        /* 🔒 Puerta secreta (botón azul dentro del área del juego) */
-        #secret-door {
-            position: absolute;
-            display: none;
-            width: 60px;
-            height: 60px;
-            top: 500px;
-            left: 350px;
-            background-color: rgba(0, 0, 255, 0.5);
-            border: 2px solid blue;
-            border-radius: 10px;
+        button {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             color: white;
-            font-size: 30px;
-            text-align: center;
-            line-height: 60px;
-            z-index: 5;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
         }
 
-        #instructions {
-            color: white;
+        button:hover {
+            background: rgba(0, 242, 255, 0.1);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        button:active { transform: translateY(0); }
+
+        .hidden { display: none; }
+
+        #result-screen h2 { color: var(--accent); }
+        
+        .score-circle {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 20px 0;
+            color: var(--accent);
+        }
+
+        .share-btn {
+            background: var(--accent);
+            color: black;
+            font-weight: bold;
             text-align: center;
-            margin-top: 10px;
-            font-size: 18px;
+            margin-top: 20px;
+            width: 100%;
         }
     </style>
 </head>
-
 <body>
-    <div id="game-area">
-        <div id="player"></div>
 
-        <!-- Puertas normales -->
-        <div id="door1" class="door" data-link="LABERINTO.html" data-id="laberinto">🎃</div>
-        <div id="door2" class="door" data-link="DIFERENCIAS.html" data-id="zombie">🧟</div>
-        <div id="door3" class="door" data-link="PUZZLE.html" data-id="puzzle">🧩</div>
-        <div id="door4" class="door" data-link="ahorcado_de_miedo.html" data-id="ahorcado">💀</div>
-
-        <!-- ✅ Puerta secreta dentro del área -->
-        <div id="secret-door" class="door">🔒</div>
+<div class="container">
+    <div id="quiz-ui">
+        <h1>Trivial Diario</h1>
+        <span class="date-tag" id="date-display"></span>
+        
+        <div id="quiz-content">
+            <p id="question-text">Preparando el desafío...</p>
+            <div id="options-container" class="options-grid"></div>
+        </div>
     </div>
 
-    <div id="instructions">
-        Usa las flechas o WASD para moverte. Entra en una puerta solo una vez.
+    <div id="result-screen" class="hidden">
+        <h2>DESAFÍO COMPLETADO</h2>
+        <div class="score-circle" id="score-number">0</div>
+        <p id="result-msg"></p>
+        <button class="share-btn" onclick="shareResult()">COMPARTIR RESULTADO</button>
+        <p style="font-size: 0.7rem; margin-top: 20px; opacity: 0.5;">Vuelve mañana para un nuevo reto.</p>
     </div>
+</div>
 
-    <!-- Mostrar código en pantalla -->
-    <div id="code-display" style="position: fixed; top: 20px; right: 20px;
-        background: rgba(0,0,0,0.7); color: white; padding: 10px 15px;
-        font-size: 20px; border-radius: 10px; display: none; z-index: 20;">
-        Código: <span id="code-numbers"></span>
-    </div>
+<script>
+    // 1. BASE DE DATOS DE PREGUNTAS (Añade todas las que quieras)
+    const questionsBank = [
+        { q: "¿Qué país tiene más pirámides del mundo?", o: ["Egipto", "Sudán", "México", "Perú"], a: 1 },
+        { q: "¿Cuál es el único metal que es líquido a temperatura ambiente?", o: ["Galio", "Cesio", "Mercurio", "Magnesio"], a: 2 },
+        { q: "¿En qué año se hundió el Titanic?", o: ["1912", "1905", "1921", "1898"], a: 0 },
+        { q: "¿Qué animal produce la leche de color rosa?", o: ["Ornitorrinco", "Hipopótamo", "Cerdo", "Flamenco"], a: 1 },
+        { q: "¿Cuál es el lugar más profundo de la Tierra?", o: ["Fosa de las Marianas", "Gran Cañón", "Abismo de Bentley", "Fosa de Java"], a: 0 },
+        { q: "¿Qué gas absorben las plantas y expulsan oxígeno?", o: ["Nitrógeno", "Metano", "Dióxido de Carbono", "Hidrógeno"], a: 2 },
+        { q: "¿Cuál es el libro más vendido de la historia (después de la Biblia)?", o: ["Harry Potter", "Don Quijote de la Mancha", "El Principito", "Historia de dos ciudades"], a: 1 }
+    ];
 
-    <!-- Menú para ingresar código -->
-    <div id="code-menu" style="display:none; position: fixed; top: 50%; left: 50%;
-        transform: translate(-50%, -50%); background: #222; padding: 20px; border-radius: 15px;
-        color: white; box-shadow: 0 0 15px blue; z-index: 30; width: 300px; text-align: center;">
-        <h3>Introduce el código</h3>
-        <input type="text" id="code-input" maxlength="4"
-            style="font-size: 24px; text-align: center; width: 80%; letter-spacing: 10px;" />
-        <br><br>
-        <button id="code-submit" style="font-size: 18px; padding: 8px 15px; cursor: pointer;">Enviar</button>
-        <button id="code-cancel"
-            style="font-size: 18px; padding: 8px 15px; cursor: pointer; margin-left: 10px;">Cancelar</button>
-        <p id="code-message" style="margin-top: 15px;"></p>
-    </div>
+    // 2. LÓGICA DIARIA
+    // Usamos la fecha actual como "semilla" para elegir preguntas
+    const now = new Date();
+    const dateString = now.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+    document.getElementById('date-display').innerText = dateString;
 
-    <script>
-        const player = document.getElementById("player");
-        const doors = document.querySelectorAll(".door");
-        const secretDoor = document.getElementById("secret-door");
+    // Generamos un índice basado en el día del año
+    const startOfYear = new Date(now.getFullYear(), 0, 0);
+    const diff = now - startOfYear;
+    const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-        let posX = 100;
-        let posY = 100;
-        const speed = 10;
-        let entered = false;
+    // Seleccionamos 3 preguntas usando el día del año como offset
+    let dailyIndices = [
+        (dayOfYear) % questionsBank.length,
+        (dayOfYear + 1) % questionsBank.length,
+        (dayOfYear + 2) % questionsBank.length
+    ];
+    
+    // Eliminar duplicados si el banco es muy pequeño
+    dailyIndices = [...new Set(dailyIndices)];
 
-        // Desactivar y poner gris las puertas completadas
-        doors.forEach(door => {
-            const id = door.getAttribute('data-id');
-            if (!id) return; // evita incluir la puerta secreta
-            const completed = localStorage.getItem('minijuego_' + id);
-            if (completed === 'true') {
-                door.classList.add('used');
-                door.style.pointerEvents = 'none';
-            }
+    let currentStep = 0;
+    let score = 0;
+
+    function initQuiz() {
+        showQuestion();
+    }
+
+    function showQuestion() {
+        const qData = questionsBank[dailyIndices[currentStep]];
+        document.getElementById('question-text').innerText = qData.q;
+        const container = document.getElementById('options-container');
+        container.innerHTML = '';
+
+        qData.o.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(i);
+            container.appendChild(btn);
         });
+    }
 
-        document.addEventListener("keydown", (e) => {
-            switch (e.key.toLowerCase()) {
-                case "arrowup":
-                case "w": posY -= speed; break;
-                case "arrowdown":
-                case "s": posY += speed; break;
-                case "arrowleft":
-                case "a": posX -= speed; break;
-                case "arrowright":
-                case "d": posX += speed; break;
-            }
-
-            posX = Math.max(0, Math.min(posX, 760));
-            posY = Math.max(0, Math.min(posY, 560));
-            player.style.left = posX + "px";
-            player.style.top = posY + "px";
-
-            checkCollision();
-            checkSecretDoorCollision();
-        });
-
-        function isColliding(rect1, rect2) {
-            return !(rect1.right < rect2.left ||
-                rect1.left > rect2.right ||
-                rect1.bottom < rect2.top ||
-                rect1.top > rect2.bottom);
+    function checkAnswer(selected) {
+        if (selected === questionsBank[dailyIndices[currentStep]].a) {
+            score++;
         }
 
-        function checkCollision() {
-            if (entered) return;
-            const playerRect = player.getBoundingClientRect();
-
-            for (const door of doors) {
-                if (door.classList.contains("used")) continue;
-                const doorRect = door.getBoundingClientRect();
-                if (isColliding(playerRect, doorRect)) {
-                    const link = door.getAttribute("data-link");
-                    if (link) {
-                        entered = true;
-                        setTimeout(() => window.location.href = link, 200);
-                    }
-                }
-            }
+        currentStep++;
+        if (currentStep < dailyIndices.length) {
+            showQuestion();
+        } else {
+            showFinalResults();
         }
+    }
 
-        // ---- Código secreto ----
-        const codeDisplay = document.getElementById("code-display");
-        const codeNumbersSpan = document.getElementById("code-numbers");
-        const codeMenu = document.getElementById("code-menu");
-        const codeInput = document.getElementById("code-input");
-        const codeSubmit = document.getElementById("code-submit");
-        const codeCancel = document.getElementById("code-cancel");
-        const codeMessage = document.getElementById("code-message");
+    function showFinalResults() {
+        document.getElementById('quiz-ui').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+        document.getElementById('score-number').innerText = `${score}/${dailyIndices.length}`;
+        
+        let msg = "";
+        if(score === dailyIndices.length) msg = "¡Nivel de genio absoluto! 🧠";
+        else if(score > 0) msg = "Nada mal, pero puedes mejorar. 🔥";
+        else msg = "Hoy no es tu día... ¡Vuelve mañana! 💀";
+        
+        document.getElementById('result-msg').innerText = msg;
+    }
 
-        const ids = ['laberinto', 'zombie', 'puzzle', 'ahorcado'];
-        const completedAll = ids.every(id => localStorage.getItem('minijuego_' + id) === 'true');
-
-        let secretCode = '';
-        if (completedAll) {
-            for (let i = 0; i < 4; i++) {
-                secretCode += Math.floor(Math.random() * 10);
-            }
-            secretDoor.style.display = 'block';
-            codeDisplay.style.display = 'block';
-            codeNumbersSpan.textContent = secretCode;
+    function shareResult() {
+        const text = `He completado el Trivial Diario (${score}/${dailyIndices.length}). ¿Te atreves? 🏆`;
+        if (navigator.share) {
+            navigator.share({ title: 'Trivial Diario', text: text, url: window.location.href });
+        } else {
+            alert("Copiado al portapapeles: " + text);
         }
+    }
 
-        let codeMenuOpen = false;
+    initQuiz();
+</script>
 
-        function checkSecretDoorCollision() {
-            if (!completedAll || codeMenuOpen) return;
-            const playerRect = player.getBoundingClientRect();
-            const doorRect = secretDoor.getBoundingClientRect();
-            if (isColliding(playerRect, doorRect)) openCodeMenu();
-        }
-
-        function openCodeMenu() {
-            codeMenuOpen = true;
-            codeMenu.style.display = 'block';
-            codeInput.value = '';
-            codeMessage.textContent = '';
-            codeInput.focus();
-        }
-
-        function closeCodeMenu() {
-            codeMenuOpen = false;
-            codeMenu.style.display = 'none';
-            codeMessage.textContent = '';
-        }
-
-        codeSubmit.addEventListener('click', () => {
-            const val = codeInput.value.trim();
-            if (val === secretCode) {
-                codeMessage.style.color = 'lightgreen';
-                codeMessage.textContent = '¡Código correcto! ¡Has desbloqueado el final secreto!';
-                setTimeout(() => alert('🎉 ¡Felicidades! Has terminado el juego. 🏁'), 1000);
-            } else {
-                codeMessage.style.color = 'red';
-                codeMessage.textContent = 'Código incorrecto. Intenta de nuevo.';
-            }
-        });
-
-        codeCancel.addEventListener('click', closeCodeMenu);
-        document.addEventListener('keydown', (e) => { if (codeMenuOpen && e.key === "Escape") closeCodeMenu(); });
-    </script>
 </body>
-
 </html>
