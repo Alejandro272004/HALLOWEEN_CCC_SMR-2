@@ -85,15 +85,15 @@
             border-radius: 12px;
             border: 2px solid transparent;
             cursor: pointer;
-            transition: 0.2s;
         }
         .correct { background: var(--success) !important; color: black; font-weight: bold; }
         .wrong { background: var(--error) !important; }
 
         .leaderboard { margin-top: 30px; background: rgba(0,0,0,0.3); border-radius: 15px; padding: 15px; border: 1px solid #222; }
-        .entry { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; }
+        .entry { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; min-height: 40px; align-items: center; }
         .entry:last-child { border: none; }
-        .rank { color: var(--gold); font-weight: bold; margin-right: 8px; }
+        .rank { color: var(--gold); font-weight: bold; margin-right: 8px; width: 25px; display: inline-block; }
+        .empty-slot { opacity: 0.2; font-style: italic; font-size: 0.8rem; }
 
         .streak-fire { text-align: center; color: #ff8800; font-weight: 900; font-size: 1.2rem; margin-bottom: 10px; }
         #timer { font-family: monospace; color: var(--accent); font-size: 1.2rem; }
@@ -145,12 +145,11 @@
 </div>
 
 <script>
-    // --- CONFIGURACIÓN FIREBASE ---
     const firebaseConfig = {
-        apiKey: "TU_API_KEY_REAL", // Cámbialo por tu API Key
-        authDomain: "trivialbrutal.firebaseapp.com", // Cámbialo por tu dominio
-        databaseURL: "https://trivialbrutal-default-rtdb.firebaseio.com", // URL INSERTADA
-        projectId: "trivialbrutal", // Cámbialo por tu ID de proyecto
+        apiKey: "TU_API_KEY_REAL",
+        authDomain: "trivialbrutal.firebaseapp.com",
+        databaseURL: "https://trivialbrutal-default-rtdb.firebaseio.com",
+        projectId: "trivialbrutal",
         storageBucket: "trivialbrutal.appspot.com",
         messagingSenderId: "TU_SENDER_ID",
         appId: "TU_APP_ID"
@@ -158,7 +157,6 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // --- BANCO DE PREGUNTAS ---
     const masterBank = [
         { q: "¿Qué gas constituye el 78% de la atmósfera?", o: ["Oxígeno", "Nitrógeno", "Argón", "CO2"], a: 1 },
         { q: "¿En qué año se hundió el Titanic?", o: ["1912", "1905", "1915", "1920"], a: 0 },
@@ -198,11 +196,9 @@
     function initGame(mode) {
         playingDate = (mode === 'today') ? hoy : document.getElementById('calendar-input').value;
         if (!playingDate) return;
-
         const seed = playingDate.split("-").join("");
         currentQuestions = getDailySet(seed);
         currentStep = 0; score = 0;
-        
         showScreen('screen-game');
         startTimer();
         loadQuestion();
@@ -225,7 +221,6 @@
         document.getElementById('q-text').innerText = q.q;
         const box = document.getElementById('options-box');
         box.innerHTML = '';
-
         q.o.forEach((opt, i) => {
             const b = document.createElement('button');
             b.className = 'opt-btn';
@@ -234,7 +229,6 @@
                 if(document.querySelector('.correct')) return;
                 if(i === q.a) { b.classList.add('correct'); score++; }
                 else { b.classList.add('wrong'); document.querySelectorAll('.opt-btn')[q.a].classList.add('correct'); }
-                
                 setTimeout(() => {
                     currentStep++;
                     if(currentStep < 10) loadQuestion();
@@ -251,7 +245,6 @@
         showScreen('screen-result');
         document.getElementById('final-stats').innerText = `${score}/10`;
         document.getElementById('final-time').innerText = `Tiempo total: ${timeStr}`;
-
         if(playingDate === hoy) {
             saveResult(score, timeStr);
             updateStreak();
@@ -273,12 +266,23 @@
             snapshot.forEach(child => data.push(child.val()));
             data.sort((a,b) => b.points - a.points || a.time.localeCompare(b.time));
 
-            document.getElementById('lead-list').innerHTML = data.slice(0, 10).map((r, i) => `
-                <div class="entry">
-                    <span><b class="rank">#${i+1}</b> ${r.user}</span>
-                    <span>${r.points}/10 <small style="opacity:0.5">${r.time}</small></span>
-                </div>
-            `).join('') || 'Nadie ha jugado hoy aún.';
+            let html = "";
+            for (let i = 0; i < 10; i++) {
+                if (data[i]) {
+                    html += `
+                        <div class="entry">
+                            <span><b class="rank">#${i+1}</b> ${data[i].user}</span>
+                            <span>${data[i].points}/10 <small style="opacity:0.5">${data[i].time}</small></span>
+                        </div>`;
+                } else {
+                    html += `
+                        <div class="entry">
+                            <span><b class="rank">#${i+1}</b> <span class="empty-slot">Esperando retador...</span></span>
+                            <span>--</span>
+                        </div>`;
+                }
+            }
+            document.getElementById('lead-list').innerHTML = html;
         });
         document.getElementById('streak-num').innerText = localStorage.getItem('userStreak') || 0;
     }
@@ -288,10 +292,8 @@
         let lastDate = localStorage.getItem('lastDatePlayed');
         const ayer = new Date(); ayer.setDate(ayer.getDate() - 1);
         const ayerStr = ayer.toISOString().split("T")[0];
-
         if(lastDate === ayerStr) streak++;
         else if(lastDate !== hoy) streak = 1;
-
         localStorage.setItem('userStreak', streak);
         localStorage.setItem('lastDatePlayed', hoy);
     }
@@ -321,6 +323,5 @@
 
     checkAuth();
 </script>
-
 </body>
 </html>
