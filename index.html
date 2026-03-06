@@ -3,222 +3,275 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRIVIAL DIARIO BRUTAL</title>
+    <title>TRIVIAL DIARIO V2 | BRUTAL</title>
     <style>
-        /* CSS: ESTILO BRUTAL Y MODERNO */
         :root {
-            --bg: #0a0a0c;
-            --card: #15151e;
-            --accent: #00f2ff; /* Neón Cyan */
-            --error: #ff2e63;
+            --bg: #050505;
+            --card: #111116;
+            --accent: #00f2ff;
+            --success: #2ecc71;
+            --error: #e74c3c;
             --text: #ffffff;
         }
 
         body {
             background-color: var(--bg);
             color: var(--text);
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            overflow: hidden;
         }
 
         .container {
             background: var(--card);
             padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 242, 255, 0.1);
+            border-radius: 24px;
+            box-shadow: 0 0 40px rgba(0,0,0,0.8), 0 0 20px rgba(0, 242, 255, 0.05);
             width: 90%;
-            max-width: 450px;
+            max-width: 500px;
             text-align: center;
             border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.3s ease;
+            position: relative;
         }
 
-        h1 {
-            font-size: 1.5rem;
-            letter-spacing: 4px;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            color: var(--accent);
-            text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
-        }
+        /* Pantallas */
+        .screen { display: none; }
+        .active { display: block; animation: fadeIn 0.5s; }
 
-        .date-tag {
-            font-size: 0.8rem;
-            opacity: 0.6;
-            margin-bottom: 30px;
-            display: block;
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        #question-text {
-            font-size: 1.2rem;
-            line-height: 1.4;
-            margin-bottom: 25px;
-            min-height: 70px;
-        }
-
-        .options-grid {
-            display: grid;
-            gap: 12px;
-        }
-
-        button {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
-            padding: 15px 20px;
-            border-radius: 12px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: left;
-        }
-
-        button:hover {
-            background: rgba(0, 242, 255, 0.1);
-            border-color: var(--accent);
-            transform: translateY(-2px);
-        }
-
-        button:active { transform: translateY(0); }
-
-        .hidden { display: none; }
-
-        #result-screen h2 { color: var(--accent); }
+        h1 { font-size: 2rem; color: var(--accent); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 10px; }
         
-        .score-circle {
-            font-size: 3rem;
-            font-weight: bold;
-            margin: 20px 0;
-            color: var(--accent);
-        }
+        .streak-badge { background: rgba(255, 165, 0, 0.2); color: orange; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; margin-bottom: 20px; display: inline-block; }
 
-        .share-btn {
+        /* Botones Generales */
+        .btn-main {
             background: var(--accent);
             color: black;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
             font-weight: bold;
-            text-align: center;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: 0.3s;
             margin-top: 20px;
-            width: 100%;
         }
+
+        .btn-main:hover { transform: scale(1.05); box-shadow: 0 0 20px var(--accent); }
+
+        /* Calendario */
+        .calendar-box { margin: 20px 0; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
+        input[type="date"] { background: #222; border: 1px solid var(--accent); color: white; padding: 8px; border-radius: 8px; }
+
+        /* Opciones de Pregunta */
+        .options-grid { display: grid; gap: 10px; margin-top: 20px; }
+        .opt-btn {
+            background: #1c1c24;
+            border: 2px solid #2d2d3a;
+            color: white;
+            padding: 14px;
+            border-radius: 12px;
+            text-align: left;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        /* Colores de Acierto/Fallo */
+        .opt-btn.correct { background: var(--success) !important; border-color: #27ae60 !important; color: white; }
+        .opt-btn.wrong { background: var(--error) !important; border-color: #c0392b !important; color: white; }
+
+        .progress-bar { height: 6px; background: #222; border-radius: 3px; margin: 20px 0; overflow: hidden; }
+        #progress-fill { height: 100%; background: var(--accent); width: 0%; transition: 0.3s; }
+
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div id="quiz-ui">
-        <h1>Trivial Diario</h1>
-        <span class="date-tag" id="date-display"></span>
+    <div id="screen-home" class="screen active">
+        <div class="streak-badge">🔥 RACHA: <span id="streak-val">0</span> DÍAS</div>
+        <h1>Trivial Brutal</h1>
+        <p>10 preguntas diarias de cultura general pura.</p>
+        <button class="btn-main" onclick="startQuiz('today')">¡EMPEZAR HOY!</button>
         
-        <div id="quiz-content">
-            <p id="question-text">Preparando el desafío...</p>
-            <div id="options-container" class="options-grid"></div>
+        <div class="calendar-box">
+            <p>¿Olvidaste un día? Elige fecha:</p>
+            <input type="date" id="date-picker">
+            <button onclick="startWithDate()" style="background:none; border: 1px solid var(--accent); color: var(--accent); padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-left: 5px;">Jugar</button>
         </div>
     </div>
 
-    <div id="result-screen" class="hidden">
-        <h2>DESAFÍO COMPLETADO</h2>
-        <div class="score-circle" id="score-number">0</div>
-        <p id="result-msg"></p>
-        <button class="share-btn" onclick="shareResult()">COMPARTIR RESULTADO</button>
-        <p style="font-size: 0.7rem; margin-top: 20px; opacity: 0.5;">Vuelve mañana para un nuevo reto.</p>
+    <div id="screen-game" class="screen">
+        <div id="progress-bar" class="progress-bar"><div id="progress-fill"></div></div>
+        <p id="q-number" style="opacity: 0.5; font-size: 0.8rem;"></p>
+        <h2 id="q-text">Cargando...</h2>
+        <div id="options-container" class="options-grid"></div>
+    </div>
+
+    <div id="screen-result" class="screen">
+        <h1 id="result-title">FIN</h1>
+        <div style="font-size: 4rem; margin: 20px 0;" id="final-score">0/10</div>
+        <p id="result-desc"></p>
+        <button class="btn-main" onclick="location.reload()">VOLVER AL INICIO</button>
     </div>
 </div>
 
 <script>
-    // 1. BASE DE DATOS DE PREGUNTAS (Añade todas las que quieras)
+    /* BANCO DE PREGUNTAS (HE PUESTO VARIAS, PUEDES AÑADIR MÁS SIGUIENDO EL FORMATO) */
     const questionsBank = [
-        { q: "¿Qué país tiene más pirámides del mundo?", o: ["Egipto", "Sudán", "México", "Perú"], a: 1 },
-        { q: "¿Cuál es el único metal que es líquido a temperatura ambiente?", o: ["Galio", "Cesio", "Mercurio", "Magnesio"], a: 2 },
-        { q: "¿En qué año se hundió el Titanic?", o: ["1912", "1905", "1921", "1898"], a: 0 },
-        { q: "¿Qué animal produce la leche de color rosa?", o: ["Ornitorrinco", "Hipopótamo", "Cerdo", "Flamenco"], a: 1 },
-        { q: "¿Cuál es el lugar más profundo de la Tierra?", o: ["Fosa de las Marianas", "Gran Cañón", "Abismo de Bentley", "Fosa de Java"], a: 0 },
-        { q: "¿Qué gas absorben las plantas y expulsan oxígeno?", o: ["Nitrógeno", "Metano", "Dióxido de Carbono", "Hidrógeno"], a: 2 },
-        { q: "¿Cuál es el libro más vendido de la historia (después de la Biblia)?", o: ["Harry Potter", "Don Quijote de la Mancha", "El Principito", "Historia de dos ciudades"], a: 1 }
+        { q: "¿Qué gas constituye el 78% de la atmósfera terrestre?", o: ["Oxígeno", "Argón", "Nitrógeno", "CO2"], a: 2 },
+        { q: "¿En qué país se encuentra la ciudad perdida de Petra?", o: ["Egipto", "Jordania", "Irak", "Irán"], a: 1 },
+        { q: "¿Cuál es el hueso más pequeño del cuerpo humano?", o: ["Estribo", "Falange", "Rótula", "Cúbito"], a: 0 },
+        { q: "¿Qué pintor español es famoso por el cuadro 'Las Meninas'?", o: ["Goya", "Dalí", "Picasso", "Velázquez"], a: 3 },
+        { q: "¿Cuál es la moneda oficial de Japón?", o: ["Won", "Yuan", "Yen", "Ringgit"], a: 2 },
+        { q: "¿Quién escribió 'La Odisea'?", o: ["Platón", "Sófocles", "Homero", "Aristóteles"], a: 2 },
+        { q: "¿Qué elemento de la tabla periódica tiene el símbolo 'K'?", o: ["Kriptón", "Potasio", "Calcio", "Fósforo"], a: 1 },
+        { q: "¿Qué estrecho separa España de Marruecos?", o: ["Bósforo", "Magallanes", "Gibraltar", "Ormuz"], a: 2 },
+        { q: "¿Cuál es el río más largo del mundo?", o: ["Nilo", "Amazonas", "Misisipi", "Yangtsé"], a: 1 },
+        { q: "¿En qué año cayó el muro de Berlín?", o: ["1987", "1991", "1989", "1985"], a: 2 },
+        { q: "¿Cuál es la velocidad de la luz aprox.?", o: ["300.000 km/s", "150.000 km/s", "1.000.000 km/s", "500.000 km/s"], a: 0 },
+        { q: "¿A qué país pertenece la isla de Groenlandia?", o: ["Islandia", "Noruega", "Dinamarca", "Canadá"], a: 2 },
+        { q: "¿Quién pintó 'La persistencia de la memoria'?", o: ["Picasso", "Dalí", "Miró", "Magritte"], a: 1 },
+        { q: "¿Qué órgano produce la insulina?", o: ["Hígado", "Páncreas", "Riñón", "Bazo"], a: 1 },
+        { q: "¿Cuál es el océano más grande del mundo?", o: ["Atlántico", "Índico", "Pacífico", "Ártico"], a: 2 },
+        { q: "¿En qué ciudad se encuentra el Burj Khalifa?", o: ["Abu Dabi", "Riad", "Dubái", "Doha"], a: 2 },
+        { q: "¿Quién descubrió la penicilina?", o: ["Pasteur", "Fleming", "Newton", "Curie"], a: 1 },
+        { q: "¿Cuál es el animal más rápido del mundo terrestre?", o: ["León", "Guepardo", "Antílope", "Tigre"], a: 1 },
+        { q: "¿Qué ciudad es conocida como la 'Ciudad Eterna'?", o: ["Atenas", "París", "Roma", "Estambul"], a: 2 },
+        { q: "¿Cuál es el metal más caro del mundo?", o: ["Oro", "Platino", "Rodio", "Paladio"], a: 2 }
     ];
 
-    // 2. LÓGICA DIARIA
-    // Usamos la fecha actual como "semilla" para elegir preguntas
-    const now = new Date();
-    const dateString = now.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
-    document.getElementById('date-display').innerText = dateString;
-
-    // Generamos un índice basado en el día del año
-    const startOfYear = new Date(now.getFullYear(), 0, 0);
-    const diff = now - startOfYear;
-    const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-    // Seleccionamos 3 preguntas usando el día del año como offset
-    let dailyIndices = [
-        (dayOfYear) % questionsBank.length,
-        (dayOfYear + 1) % questionsBank.length,
-        (dayOfYear + 2) % questionsBank.length
-    ];
-    
-    // Eliminar duplicados si el banco es muy pequeño
-    dailyIndices = [...new Set(dailyIndices)];
-
+    let currentQuestions = [];
     let currentStep = 0;
     let score = 0;
+    let playingDate = "";
+    let canClick = true;
 
-    function initQuiz() {
-        showQuestion();
+    // Cargar Racha al inicio
+    document.getElementById('streak-val').innerText = localStorage.getItem('streak') || 0;
+
+    function startWithDate() {
+        const val = document.getElementById('date-picker').value;
+        if(val) startQuiz(val);
+        else alert("Selecciona una fecha");
     }
 
-    function showQuestion() {
-        const qData = questionsBank[dailyIndices[currentStep]];
-        document.getElementById('question-text').innerText = qData.q;
+    function startQuiz(dateMode) {
+        let seedDate;
+        if(dateMode === 'today') {
+            seedDate = new Date();
+            playingDate = seedDate.toISOString().split('T')[0];
+        } else {
+            seedDate = new Date(dateMode);
+            playingDate = dateMode;
+        }
+
+        // Generar 10 preguntas únicas basadas en la fecha
+        currentQuestions = generateDailySet(seedDate);
+        currentStep = 0;
+        score = 0;
+
+        showScreen('screen-game');
+        loadQuestion();
+    }
+
+    function generateDailySet(date) {
+        // Algoritmo para elegir 10 preguntas fijas por fecha
+        let seed = date.getDate() + date.getMonth() + date.getFullYear();
+        let set = [];
+        let available = [...questionsBank];
+        
+        for(let i=0; i<10; i++) {
+            let index = (seed + i * 7) % available.length;
+            set.push(available.splice(index, 1)[0]);
+        }
+        return set;
+    }
+
+    function loadQuestion() {
+        canClick = true;
+        const qData = currentQuestions[currentStep];
+        document.getElementById('q-number').innerText = `PREGUNTA ${currentStep + 1} DE 10`;
+        document.getElementById('q-text').innerText = qData.q;
+        document.getElementById('progress-fill').style.width = `${(currentStep / 10) * 100}%`;
+        
         const container = document.getElementById('options-container');
         container.innerHTML = '';
 
         qData.o.forEach((opt, i) => {
             const btn = document.createElement('button');
+            btn.className = 'opt-btn';
             btn.innerText = opt;
-            btn.onclick = () => checkAnswer(i);
+            btn.onclick = () => selectOption(btn, i);
             container.appendChild(btn);
         });
     }
 
-    function checkAnswer(selected) {
-        if (selected === questionsBank[dailyIndices[currentStep]].a) {
+    function selectOption(btn, index) {
+        if(!canClick) return;
+        canClick = false;
+
+        const correctIdx = currentQuestions[currentStep].a;
+        const allBtns = document.querySelectorAll('.opt-btn');
+
+        if(index === correctIdx) {
+            btn.classList.add('correct');
             score++;
-        }
-
-        currentStep++;
-        if (currentStep < dailyIndices.length) {
-            showQuestion();
         } else {
-            showFinalResults();
+            btn.classList.add('wrong');
+            allBtns[correctIdx].classList.add('correct');
+        }
+
+        setTimeout(() => {
+            currentStep++;
+            if(currentStep < 10) loadQuestion();
+            else finishGame();
+        }, 1200);
+    }
+
+    function finishGame() {
+        showScreen('screen-result');
+        document.getElementById('final-score').innerText = `${score}/10`;
+        
+        // Lógica de Racha
+        const hoyString = new Date().toISOString().split('T')[0];
+        if(playingDate === hoyString) {
+            updateStreak();
+        }
+
+        let desc = score > 7 ? "¡Eres una enciclopedia humana!" : "Buen intento, sigue practicando.";
+        document.getElementById('result-desc').innerText = desc;
+    }
+
+    function updateStreak() {
+        let lastDate = localStorage.getItem('lastPlayDate');
+        let streak = parseInt(localStorage.getItem('streak') || 0);
+        const hoy = new Date();
+        const hoyString = hoy.toISOString().split('T')[0];
+
+        if(lastDate !== hoyString) {
+            // Verificar si ayer se jugó
+            const ayer = new Date();
+            ayer.setDate(ayer.getDate() - 1);
+            const ayerString = ayer.toISOString().split('T')[0];
+
+            if(lastDate === ayerString) streak++;
+            else streak = 1;
+
+            localStorage.setItem('streak', streak);
+            localStorage.setItem('lastPlayDate', hoyString);
         }
     }
 
-    function showFinalResults() {
-        document.getElementById('quiz-ui').classList.add('hidden');
-        document.getElementById('result-screen').classList.remove('hidden');
-        document.getElementById('score-number').innerText = `${score}/${dailyIndices.length}`;
-        
-        let msg = "";
-        if(score === dailyIndices.length) msg = "¡Nivel de genio absoluto! 🧠";
-        else if(score > 0) msg = "Nada mal, pero puedes mejorar. 🔥";
-        else msg = "Hoy no es tu día... ¡Vuelve mañana! 💀";
-        
-        document.getElementById('result-msg').innerText = msg;
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
     }
-
-    function shareResult() {
-        const text = `He completado el Trivial Diario (${score}/${dailyIndices.length}). ¿Te atreves? 🏆`;
-        if (navigator.share) {
-            navigator.share({ title: 'Trivial Diario', text: text, url: window.location.href });
-        } else {
-            alert("Copiado al portapapeles: " + text);
-        }
-    }
-
-    initQuiz();
 </script>
 
 </body>
