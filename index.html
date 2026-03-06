@@ -39,16 +39,15 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.8);
             border: 1px solid rgba(255,255,255,0.05);
             box-sizing: border-box;
-            text-align: center; /* Por defecto, todo centrado */
+            text-align: center; /* Centrado general para botones y títulos */
         }
 
         .screen { display: none; }
         .active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        h1 { font-weight: 900; letter-spacing: -1px; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; text-align: center; }
+        h1 { font-weight: 900; letter-spacing: -1px; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
         
-        /* Botones y Inputs */
         .btn-main {
             width: 100%;
             padding: 18px;
@@ -78,80 +77,77 @@
             text-align: center;
         }
 
-        /* Trivia */
         .opt-btn {
             width: 100%;
             padding: 16px;
             margin-bottom: 12px;
             background: #1c1c26;
             color: white;
-            text-align: left; /* Opciones a la izquierda */
+            text-align: left;
             border-radius: 12px;
             border: 2px solid transparent;
             cursor: pointer;
-            transition: 0.2s;
         }
         .correct { background: var(--success) !important; color: black; font-weight: bold; }
         .wrong { background: var(--error) !important; }
 
-        /* Leaderboard - CAMBIADO A LA IZQUIERDA */
+        /* LEADERBOARD CORREGIDA A LA IZQUIERDA */
         .leaderboard { 
             margin-top: 30px; 
-            background: rgba(0,0,0,0.3); 
+            background: rgba(0,0,0,0.5); 
             border-radius: 15px; 
-            padding: 15px; 
+            padding: 20px; 
             border: 1px solid #222;
-            text-align: left; /* Alineación a la izquierda */
+            text-align: left !important; /* Fuerza alineación izquierda */
         }
-        
+
         .leaderboard h3 {
             margin: 0 0 15px 0; 
-            font-size: 0.9rem; 
+            font-size: 0.85rem; 
             text-transform: uppercase; 
             color: var(--accent);
-            text-align: left; /* Título a la izquierda */
+            letter-spacing: 1px;
+            text-align: left !important;
         }
 
         .entry { 
             display: flex; 
-            justify-content: space-between; 
-            padding: 12px 0; 
-            border-bottom: 1px solid #222; 
-            min-height: 40px; 
+            justify-content: flex-start; /* Contenido a la izquierda */
+            padding: 10px 0; 
+            border-bottom: 1px solid rgba(255,255,255,0.05); 
             align-items: center;
+            text-align: left !important;
         }
         .entry:last-child { border: none; }
-        
-        .entry-left {
-            display: flex;
-            align-items: center;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        
+
         .rank { 
             color: var(--gold); 
-            font-weight: bold; 
-            margin-right: 12px; 
-            width: 30px; 
-            display: inline-block;
+            font-weight: 900; 
+            width: 35px; 
             flex-shrink: 0;
-            text-align: right; /* Número de rank a la derecha para alinearse */
+            text-align: left;
         }
-        
+
         .username {
+            flex-grow: 1; 
             font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-right: 10px;
+            text-align: left;
         }
-        
-        .entry-right {
+
+        .score-tag {
             flex-shrink: 0;
-            text-align: right;
-            margin-left: 10px;
+            font-family: monospace;
+            background: rgba(255,255,255,0.05);
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-size: 0.85rem;
         }
 
-        .empty-slot { opacity: 0.3; font-style: italic; font-size: 0.85rem; }
-
+        .empty-slot { opacity: 0.2; font-style: italic; font-size: 0.8rem; }
         .streak-fire { text-align: center; color: #ff8800; font-weight: 900; font-size: 1.2rem; margin-bottom: 10px; }
         #timer { font-family: monospace; color: var(--accent); font-size: 1.2rem; }
     </style>
@@ -202,7 +198,7 @@
 </div>
 
 <script>
-    // --- CONFIGURACIÓN FIREBASE (REEMPLAZA ESTO CON TUS DATOS REALES) ---
+    // --- CONFIGURACIÓN FIREBASE ---
     const firebaseConfig = {
         apiKey: "TU_API_KEY_REAL",
         authDomain: "trivialbrutal.firebaseapp.com",
@@ -215,9 +211,8 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // --- BANCO DE PREGUNTAS (10 base + 50 nuevas = 60 totales) ---
+    // --- BANCO DE PREGUNTAS (60 preguntas) ---
     const masterBank = [
-        // Base
         { q: "¿Qué gas constituye el 78% de la atmósfera?", o: ["Oxígeno", "Nitrógeno", "Argón", "CO2"], a: 1 },
         { q: "¿En qué año se hundió el Titanic?", o: ["1912", "1905", "1915", "1920"], a: 0 },
         { q: "¿Cuál es el lugar más profundo de la Tierra?", o: ["Fosa de las Marianas", "Abismo de Java", "Fosa de Puerto Rico", "Tonga"], a: 0 },
@@ -228,8 +223,6 @@
         { q: "¿Cuál es la capital de Australia?", o: ["Sídney", "Canberra", "Melbourne", "Perth"], a: 1 },
         { q: "¿Quién pintó el techo de la Capilla Sixtina?", o: ["Leonardo", "Miguel Ángel", "Rafael", "Donatello"], a: 1 },
         { q: "¿Cuál es el río más largo del mundo?", o: ["Nilo", "Amazonas", "Yangtsé", "Misisipi"], a: 1 },
-        
-        // Ciencia y Naturaleza
         { q: "¿Qué elemento tiene el símbolo químico 'Fe'?", o: ["Oro", "Hierro", "Plata", "Cobre"], a: 1 },
         { q: "¿Cuál es la partícula subatómica con carga negativa?", o: ["Protón", "Neutrón", "Electrón", "Quark"], a: 2 },
         { q: "¿Cómo se llama el proceso por el cual las plantas producen alimento?", o: ["Respiración", "Mitosis", "Fotosíntesis", "Quimiosíntesis"], a: 2 },
@@ -240,8 +233,6 @@
         { q: "¿Qué inventó Alexander Fleming?", o: ["La bombilla", "La penicilina", "El teléfono", "La radio"], a: 1 },
         { q: "¿Cuál es la velocidad de la luz aprox.?", o: ["300 km/s", "3.000 km/s", "30.000 km/s", "300.000 km/s"], a: 3 },
         { q: "¿Qué órgano humano consume más energía?", o: ["Corazón", "Hígado", "Cerebro", "Músculos"], a: 2 },
-
-        // Historia y Geografía
         { q: "¿En qué año comenzó la Primera Guerra Mundial?", o: ["1912", "1914", "1916", "1918"], a: 1 },
         { q: "¿Quién fue el primer presidente de EE.UU.?", o: ["Lincoln", "Jefferson", "Washington", "Roosevelt"], a: 2 },
         { q: "¿Qué antigua civilización construyó Machu Picchu?", o: ["Maya", "Azteca", "Inca", "Olmeca"], a: 2 },
@@ -252,9 +243,7 @@
         { q: "¿Cuál es la capital de Japón?", o: ["Kioto", "Osaka", "Tokio", "Hiroshima"], a: 2 },
         { q: "¿Quién fue la primera mujer en ganar un Premio Nobel?", o: ["Marie Curie", "M. Teresa", "Malala", "Rosalind Franklin"], a: 0 },
         { q: "¿En qué año cayó el Muro de Berlín?", o: ["1987", "1988", "1989", "1990"], a: 2 },
-
-        // Arte y Literatura
-        { q: "¿Quién escribió 'Don Quijote de la Mancha'?", o: ["Lope de Vega", "Cervantes", "Quevedo", "Góngora"], a: 1 },
+        { q: "¿Quién escribió 'Don Quijote'?", o: ["Lope de Vega", "Cervantes", "Quevedo", "Góngora"], a: 1 },
         { q: "¿Qué famoso artista pintó la 'Mona Lisa'?", o: ["Miguel Ángel", "Leonardo", "Rafael", "Donatello"], a: 1 },
         { q: "¿Cuál es el libro más vendido después de la Biblia?", o: ["Harry Potter", "Don Quijote", "El Principito", "Historia de dos ciudades"], a: 1 },
         { q: "¿Quién compuso la 'Novena Sinfonía'?", o: ["Mozart", "Bach", "Beethoven", "Chopin"], a: 2 },
@@ -264,8 +253,6 @@
         { q: "¿Qué material usó Miguel Ángel para el 'David'?", o: ["Bronce", "Mármol", "Madera", "Yeso"], a: 1 },
         { q: "¿Quién pintó 'El Grito'?", o: ["Van Gogh", "Munch", "Picasso", "Matisse"], a: 1 },
         { q: "¿Cuál es el instrumento principal en un cuarteto de cuerda?", o: ["Viola", "Cello", "Contrabajo", "Violín"], a: 3 },
-
-        // Cultura Pop y Deportes
         { q: "¿Qué banda era conocida como 'The Fab Four'?", o: ["Stones", "Led Zeppelin", "The Beatles", "The Who"], a: 2 },
         { q: "¿Qué actor protagonizó 'Piratas del Caribe'?", o: ["Pitt", "DiCaprio", "Johnny Depp", "Tom Cruise"], a: 2 },
         { q: "¿Cuál es el deporte más popular del mundo?", o: ["Baloncesto", "Tenis", "Críquet", "Fútbol"], a: 3 },
@@ -274,10 +261,8 @@
         { q: "¿Qué país ganó el Mundial de Fútbol de 2022?", o: ["Francia", "Brasil", "Argentina", "Alemania"], a: 2 },
         { q: "¿Quién es el artista con más premios Grammy?", o: ["Georg Solti", "Beyoncé", "Quincy Jones", "Alison Krauss"], a: 1 },
         { q: "¿Cuál es el videojuego más vendido de la historia?", o: ["Tetris", "Minecraft", "GTA V", "Wii Sports"], a: 1 },
-        { q: "¿Qué superhéroe es conocido como 'El Caballero Oscuro'?", o: ["Superman", "Spider-Man", "Iron Man", "Batman"], a: 3 },
+        { q: "¿Qué superhéroe es el 'Caballero Oscuro'?", o: ["Superman", "Spider-Man", "Iron Man", "Batman"], a: 3 },
         { q: "¿En qué ciudad se entregan los premios Oscar?", o: ["Nueva York", "Chicago", "Los Ángeles", "Miami"], a: 2 },
-
-        // Varios y Curiosidades
         { q: "¿Cuál es la moneda oficial del Reino Unido?", o: ["Euro", "Dólar", "Libra", "Yen"], a: 2 },
         { q: "¿Qué animal es el símbolo de la sabiduría?", o: ["Zorro", "León", "Águila", "Búho"], a: 3 },
         { q: "¿Cuál es el único mamífero capaz de volar?", o: ["Pájaro", "Murciélago", "Ardilla Voladora", "Insecto"], a: 1 },
@@ -291,9 +276,8 @@
     ];
 
     const hoy = new Date().toISOString().split("T")[0];
-    let startTime, timerInterval, currentQuestions = [], currentStep = 0, score = 0, playingDate = "";
+    let timerInterval, currentQuestions = [], currentStep = 0, score = 0, playingDate = "";
 
-    // 1. GESTIÓN USUARIO
     function checkAuth() {
         const name = localStorage.getItem('triviaUser');
         if (!name) showScreen('screen-auth');
@@ -311,18 +295,15 @@
         if (val.length >= 3) {
             localStorage.setItem('triviaUser', val);
             checkAuth();
-        } else alert("Nombre muy corto (mín. 3 letras).");
+        } else alert("Nombre muy corto.");
     }
 
-    // 2. LÓGICA JUEGO
     function initGame(mode) {
         playingDate = (mode === 'today') ? hoy : document.getElementById('calendar-input').value;
         if (!playingDate) return;
-
         const seed = playingDate.split("-").join("");
         currentQuestions = getDailySet(seed);
         currentStep = 0; score = 0;
-        
         showScreen('screen-game');
         startTimer();
         loadQuestion();
@@ -332,16 +313,12 @@
         let set = [];
         let tempBank = [...masterBank];
         let s = parseInt(seed);
-        // Mezcla determinista del banco basada en la fecha para variar las preguntas iniciales
         for (let i = tempBank.length - 1; i > 0; i--) {
-            s = (s * 9301 + 49297) % 233280; // RNG muy simple pero determinista
+            s = (s * 9301 + 49297) % 233280;
             let j = s % (i + 1);
             [tempBank[i], tempBank[j]] = [tempBank[j], tempBank[i]];
         }
-        // Selecciona 10 preguntas
-        for(let i=0; i<10; i++) {
-            set.push(tempBank[i % tempBank.length]);
-        }
+        for(let i=0; i<10; i++) set.push(tempBank[i % tempBank.length]);
         return set;
     }
 
@@ -351,24 +328,14 @@
         document.getElementById('q-text').innerText = q.q;
         const box = document.getElementById('options-box');
         box.innerHTML = '';
-
         q.o.forEach((opt, i) => {
             const b = document.createElement('button');
             b.className = 'opt-btn';
             b.innerText = opt;
             b.onclick = () => {
-                // Bloquea clics múltiples
                 if(document.querySelector('.correct')) return;
-                
-                if(i === q.a) {
-                    b.classList.add('correct');
-                    score++;
-                } else {
-                    b.classList.add('wrong');
-                    document.querySelectorAll('.opt-btn')[q.a].classList.add('correct');
-                }
-                
-                // Espera 1s antes de la siguiente
+                if(i === q.a) { b.classList.add('correct'); score++; }
+                else { b.classList.add('wrong'); document.querySelectorAll('.opt-btn')[q.a].classList.add('correct'); }
                 setTimeout(() => {
                     currentStep++;
                     if(currentStep < 10) loadQuestion();
@@ -385,102 +352,62 @@
         showScreen('screen-result');
         document.getElementById('final-stats').innerText = `${score}/10`;
         document.getElementById('final-time').innerText = `Tiempo total: ${timeStr}`;
-
         if(playingDate === hoy) {
             saveResult(score, timeStr);
             updateStreak();
         }
     }
 
-    // 3. NUBE Y RANKING (Con desempate por tiempo y rellenado)
     function saveResult(pts, time) {
         const name = localStorage.getItem('triviaUser');
         const recordID = name + "_" + hoy;
-        
-        // Evita sobreescribir si ya jugó hoy (anti-trampas local básico)
-        if(localStorage.getItem('lastPlayed_' + hoy)) return;
-
         database.ref('ranking/' + recordID).set({
-            user: name,
-            points: pts,
-            time: time,
-            date: hoy,
-            timestamp: Date.now()
+            user: name, points: pts, time: time, date: hoy, timestamp: Date.now()
         });
         localStorage.setItem('lastPlayed_' + hoy, 'true');
     }
 
     function renderLeaderboard() {
-        // Escucha solo los datos de HOY
         database.ref('ranking').orderByChild('date').equalTo(hoy).on('value', (snapshot) => {
             let data = [];
-            snapshot.forEach(child => {
-                data.push(child.val());
-            });
-
-            // Ordenar: Más puntos primero, luego menos tiempo
-            data.sort((a,b) => {
-                if (b.points !== a.points) return b.points - a.points;
-                return a.time.localeCompare(b.time); // Compara strings '00:30' < '00:40'
-            });
+            snapshot.forEach(child => data.push(child.val()));
+            data.sort((a,b) => b.points - a.points || a.time.localeCompare(b.time));
 
             const list = document.getElementById('lead-list');
             let html = "";
-            
-            // Muestra Top 10, rellenando si hay menos
             for (let i = 0; i < 10; i++) {
                 if (data[i]) {
                     html += `
                         <div class="entry">
-                            <div class="entry-left">
-                                <span class="rank">#${i+1}</span>
-                                <span class="username">${data[i].user}</span>
-                            </div>
-                            <div class="entry-right">
-                                <span>${data[i].points}/10 <small style="opacity:0.5">${data[i].time}</small></span>
-                            </div>
+                            <span class="rank">#${i+1}</span>
+                            <span class="username">${data[i].user}</span>
+                            <span class="score-tag">${data[i].points}/10 <small style="opacity:0.5">${data[i].time}</small></span>
                         </div>`;
                 } else {
                     html += `
                         <div class="entry">
-                            <div class="entry-left">
-                                <span class="rank">#${i+1}</span>
-                                <span class="empty-slot">Esperando retador...</span>
-                            </div>
-                            <div class="entry-right">
-                                <span>--</span>
-                            </div>
+                            <span class="rank">#${i+1}</span>
+                            <span class="username empty-slot">Esperando retador...</span>
+                            <span class="score-tag">--</span>
                         </div>`;
                 }
             }
             list.innerHTML = html;
         });
-        
-        // Actualiza racha visual
         document.getElementById('streak-num').innerText = localStorage.getItem('userStreak') || 0;
     }
 
-    // 4. LÓGICA DE RACHA (Diaria)
     function updateStreak() {
         let streak = parseInt(localStorage.getItem('userStreak') || 0);
         let lastDate = localStorage.getItem('lastDatePlayed');
-        
-        const ayer = new Date();
-        ayer.setDate(ayer.getDate() - 1);
+        const ayer = new Date(); ayer.setDate(ayer.getDate() - 1);
         const ayerStr = ayer.toISOString().split("T")[0];
-
-        if(lastDate === ayerStr) {
-            streak++; // Jugó ayer, suma racha
-        } else if(lastDate !== hoy) {
-            streak = 1; // Se saltó un día o es el primero, resetea a 1
-        }
-        // Si lastDate === hoy, no hace nada (ya sumó hoy)
-        
+        if(lastDate === ayerStr) streak++;
+        else if(lastDate !== hoy) streak = 1;
         localStorage.setItem('userStreak', streak);
         localStorage.setItem('lastDatePlayed', hoy);
     }
 
-    // 5. UTILIDADES
     function checkTodayStatus() {
         if(localStorage.getItem('lastPlayed_' + hoy)) {
             const btn = document.getElementById('play-today-btn');
@@ -505,9 +432,7 @@
         document.getElementById(id).classList.add('active');
     }
 
-    // Iniciar
     checkAuth();
 </script>
-
 </body>
 </html>
