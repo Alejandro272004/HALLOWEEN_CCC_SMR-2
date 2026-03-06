@@ -39,14 +39,16 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.8);
             border: 1px solid rgba(255,255,255,0.05);
             box-sizing: border-box;
+            text-align: center; /* Por defecto, todo centrado */
         }
 
         .screen { display: none; }
         .active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        h1 { font-weight: 900; letter-spacing: -1px; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
+        h1 { font-weight: 900; letter-spacing: -1px; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; text-align: center; }
         
+        /* Botones y Inputs */
         .btn-main {
             width: 100%;
             padding: 18px;
@@ -73,27 +75,82 @@
             margin-top: 10px;
             box-sizing: border-box;
             outline: none;
+            text-align: center;
         }
 
+        /* Trivia */
         .opt-btn {
             width: 100%;
             padding: 16px;
             margin-bottom: 12px;
             background: #1c1c26;
             color: white;
-            text-align: left;
+            text-align: left; /* Opciones a la izquierda */
             border-radius: 12px;
             border: 2px solid transparent;
             cursor: pointer;
+            transition: 0.2s;
         }
         .correct { background: var(--success) !important; color: black; font-weight: bold; }
         .wrong { background: var(--error) !important; }
 
-        .leaderboard { margin-top: 30px; background: rgba(0,0,0,0.3); border-radius: 15px; padding: 15px; border: 1px solid #222; }
-        .entry { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; min-height: 40px; align-items: center; }
+        /* Leaderboard - CAMBIADO A LA IZQUIERDA */
+        .leaderboard { 
+            margin-top: 30px; 
+            background: rgba(0,0,0,0.3); 
+            border-radius: 15px; 
+            padding: 15px; 
+            border: 1px solid #222;
+            text-align: left; /* Alineación a la izquierda */
+        }
+        
+        .leaderboard h3 {
+            margin: 0 0 15px 0; 
+            font-size: 0.9rem; 
+            text-transform: uppercase; 
+            color: var(--accent);
+            text-align: left; /* Título a la izquierda */
+        }
+
+        .entry { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 12px 0; 
+            border-bottom: 1px solid #222; 
+            min-height: 40px; 
+            align-items: center;
+        }
         .entry:last-child { border: none; }
-        .rank { color: var(--gold); font-weight: bold; margin-right: 8px; width: 25px; display: inline-block; }
-        .empty-slot { opacity: 0.2; font-style: italic; font-size: 0.8rem; }
+        
+        .entry-left {
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .rank { 
+            color: var(--gold); 
+            font-weight: bold; 
+            margin-right: 12px; 
+            width: 30px; 
+            display: inline-block;
+            flex-shrink: 0;
+            text-align: right; /* Número de rank a la derecha para alinearse */
+        }
+        
+        .username {
+            font-weight: 500;
+        }
+        
+        .entry-right {
+            flex-shrink: 0;
+            text-align: right;
+            margin-left: 10px;
+        }
+
+        .empty-slot { opacity: 0.3; font-style: italic; font-size: 0.85rem; }
 
         .streak-fire { text-align: center; color: #ff8800; font-weight: 900; font-size: 1.2rem; margin-bottom: 10px; }
         #timer { font-family: monospace; color: var(--accent); font-size: 1.2rem; }
@@ -122,18 +179,18 @@
         </div>
 
         <div class="leaderboard">
-            <h3 style="margin: 0 0 10px 0; font-size: 0.9rem; text-transform: uppercase; color: var(--accent);">Ranking Mundial (Hoy)</h3>
+            <h3>Ranking Mundial (Hoy)</h3>
             <div id="lead-list">Cargando clasificación...</div>
         </div>
     </div>
 
     <div id="screen-game" class="screen">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <span id="q-count" style="font-weight: bold; opacity: 0.5;">1/10</span>
             <span id="timer">00:00</span>
         </div>
-        <h2 id="q-text" style="margin: 20px 0; min-height: 80px;">---</h2>
-        <div id="options-box"></div>
+        <h2 id="q-text" style="margin: 0; min-height: 80px;">---</h2>
+        <div id="options-box" style="margin-top: 25px;"></div>
     </div>
 
     <div id="screen-result" class="screen">
@@ -145,6 +202,7 @@
 </div>
 
 <script>
+    // --- CONFIGURACIÓN FIREBASE (REEMPLAZA ESTO CON TUS DATOS REALES) ---
     const firebaseConfig = {
         apiKey: "TU_API_KEY_REAL",
         authDomain: "trivialbrutal.firebaseapp.com",
@@ -157,7 +215,9 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
+    // --- BANCO DE PREGUNTAS (10 base + 50 nuevas = 60 totales) ---
     const masterBank = [
+        // Base
         { q: "¿Qué gas constituye el 78% de la atmósfera?", o: ["Oxígeno", "Nitrógeno", "Argón", "CO2"], a: 1 },
         { q: "¿En qué año se hundió el Titanic?", o: ["1912", "1905", "1915", "1920"], a: 0 },
         { q: "¿Cuál es el lugar más profundo de la Tierra?", o: ["Fosa de las Marianas", "Abismo de Java", "Fosa de Puerto Rico", "Tonga"], a: 0 },
@@ -167,12 +227,73 @@
         { q: "¿Qué país regaló la Estatua de la Libertad a EE.UU.?", o: ["España", "Francia", "Reino Unido", "Italia"], a: 1 },
         { q: "¿Cuál es la capital de Australia?", o: ["Sídney", "Canberra", "Melbourne", "Perth"], a: 1 },
         { q: "¿Quién pintó el techo de la Capilla Sixtina?", o: ["Leonardo", "Miguel Ángel", "Rafael", "Donatello"], a: 1 },
-        { q: "¿Cuál es el río más largo del mundo?", o: ["Nilo", "Amazonas", "Yangtsé", "Misisipi"], a: 1 }
+        { q: "¿Cuál es el río más largo del mundo?", o: ["Nilo", "Amazonas", "Yangtsé", "Misisipi"], a: 1 },
+        
+        // Ciencia y Naturaleza
+        { q: "¿Qué elemento tiene el símbolo químico 'Fe'?", o: ["Oro", "Hierro", "Plata", "Cobre"], a: 1 },
+        { q: "¿Cuál es la partícula subatómica con carga negativa?", o: ["Protón", "Neutrón", "Electrón", "Quark"], a: 2 },
+        { q: "¿Cómo se llama el proceso por el cual las plantas producen alimento?", o: ["Respiración", "Mitosis", "Fotosíntesis", "Quimiosíntesis"], a: 2 },
+        { q: "¿Cuál es el mamífero más grande del mundo?", o: ["Elefante", "Ballena Azul", "Jirafa", "Rinoceronte"], a: 1 },
+        { q: "¿En qué estado de la materia las moléculas están más separadas?", o: ["Sólido", "Líquido", "Gaseoso", "Plasma"], a: 2 },
+        { q: "¿Cuál es la temperatura de ebullición del agua al nivel del mar?", o: ["90°C", "100°C", "110°C", "120°C"], a: 1 },
+        { q: "¿Cuál es el planeta más cercano al Sol?", o: ["Venus", "Marte", "Mercurio", "Tierra"], a: 2 },
+        { q: "¿Qué inventó Alexander Fleming?", o: ["La bombilla", "La penicilina", "El teléfono", "La radio"], a: 1 },
+        { q: "¿Cuál es la velocidad de la luz aprox.?", o: ["300 km/s", "3.000 km/s", "30.000 km/s", "300.000 km/s"], a: 3 },
+        { q: "¿Qué órgano humano consume más energía?", o: ["Corazón", "Hígado", "Cerebro", "Músculos"], a: 2 },
+
+        // Historia y Geografía
+        { q: "¿En qué año comenzó la Primera Guerra Mundial?", o: ["1912", "1914", "1916", "1918"], a: 1 },
+        { q: "¿Quién fue el primer presidente de EE.UU.?", o: ["Lincoln", "Jefferson", "Washington", "Roosevelt"], a: 2 },
+        { q: "¿Qué antigua civilización construyó Machu Picchu?", o: ["Maya", "Azteca", "Inca", "Olmeca"], a: 2 },
+        { q: "¿En qué país se encuentra la Gran Pirámide de Guiza?", o: ["Egipto", "México", "Perú", "Grecia"], a: 0 },
+        { q: "¿Cuál es el país más grande por superficie?", o: ["Canadá", "China", "EE.UU.", "Rusia"], a: 3 },
+        { q: "¿Qué estrecho separa España de Marruecos?", o: ["Bósforo", "Magallanes", "Gibraltar", "Ormuz"], a: 2 },
+        { q: "¿En qué océano se encuentra Hawái?", o: ["Atlántico", "Pacífico", "Índico", "Ártico"], a: 1 },
+        { q: "¿Cuál es la capital de Japón?", o: ["Kioto", "Osaka", "Tokio", "Hiroshima"], a: 2 },
+        { q: "¿Quién fue la primera mujer en ganar un Premio Nobel?", o: ["Marie Curie", "M. Teresa", "Malala", "Rosalind Franklin"], a: 0 },
+        { q: "¿En qué año cayó el Muro de Berlín?", o: ["1987", "1988", "1989", "1990"], a: 2 },
+
+        // Arte y Literatura
+        { q: "¿Quién escribió 'Don Quijote de la Mancha'?", o: ["Lope de Vega", "Cervantes", "Quevedo", "Góngora"], a: 1 },
+        { q: "¿Qué famoso artista pintó la 'Mona Lisa'?", o: ["Miguel Ángel", "Leonardo", "Rafael", "Donatello"], a: 1 },
+        { q: "¿Cuál es el libro más vendido después de la Biblia?", o: ["Harry Potter", "Don Quijote", "El Principito", "Historia de dos ciudades"], a: 1 },
+        { q: "¿Quién compuso la 'Novena Sinfonía'?", o: ["Mozart", "Bach", "Beethoven", "Chopin"], a: 2 },
+        { q: "¿Qué movimiento artístico lideró Dalí?", o: ["Impresionismo", "Cubismo", "Surrealismo", "Expresionismo"], a: 2 },
+        { q: "¿Quién escribió la obra de teatro 'Hamlet'?", o: ["Cervantes", "Shakespeare", "Molière", "Goethe"], a: 1 },
+        { q: "¿En qué ciudad se encuentra el museo del Louvre?", o: ["Londres", "Roma", "Madrid", "París"], a: 3 },
+        { q: "¿Qué material usó Miguel Ángel para el 'David'?", o: ["Bronce", "Mármol", "Madera", "Yeso"], a: 1 },
+        { q: "¿Quién pintó 'El Grito'?", o: ["Van Gogh", "Munch", "Picasso", "Matisse"], a: 1 },
+        { q: "¿Cuál es el instrumento principal en un cuarteto de cuerda?", o: ["Viola", "Cello", "Contrabajo", "Violín"], a: 3 },
+
+        // Cultura Pop y Deportes
+        { q: "¿Qué banda era conocida como 'The Fab Four'?", o: ["Stones", "Led Zeppelin", "The Beatles", "The Who"], a: 2 },
+        { q: "¿Qué actor protagonizó 'Piratas del Caribe'?", o: ["Pitt", "DiCaprio", "Johnny Depp", "Tom Cruise"], a: 2 },
+        { q: "¿Cuál es el deporte más popular del mundo?", o: ["Baloncesto", "Tenis", "Críquet", "Fútbol"], a: 3 },
+        { q: "¿En qué año se lanzaron los primeros JJOO modernos?", o: ["1890", "1894", "1896", "1900"], a: 2 },
+        { q: "¿Quién es el máximo goleador histórico del Mundial de Fútbol?", o: ["Pelé", "Ronaldo", "Klose", "Messi"], a: 2 },
+        { q: "¿Qué país ganó el Mundial de Fútbol de 2022?", o: ["Francia", "Brasil", "Argentina", "Alemania"], a: 2 },
+        { q: "¿Quién es el artista con más premios Grammy?", o: ["Georg Solti", "Beyoncé", "Quincy Jones", "Alison Krauss"], a: 1 },
+        { q: "¿Cuál es el videojuego más vendido de la historia?", o: ["Tetris", "Minecraft", "GTA V", "Wii Sports"], a: 1 },
+        { q: "¿Qué superhéroe es conocido como 'El Caballero Oscuro'?", o: ["Superman", "Spider-Man", "Iron Man", "Batman"], a: 3 },
+        { q: "¿En qué ciudad se entregan los premios Oscar?", o: ["Nueva York", "Chicago", "Los Ángeles", "Miami"], a: 2 },
+
+        // Varios y Curiosidades
+        { q: "¿Cuál es la moneda oficial del Reino Unido?", o: ["Euro", "Dólar", "Libra", "Yen"], a: 2 },
+        { q: "¿Qué animal es el símbolo de la sabiduría?", o: ["Zorro", "León", "Águila", "Búho"], a: 3 },
+        { q: "¿Cuál es el único mamífero capaz de volar?", o: ["Pájaro", "Murciélago", "Ardilla Voladora", "Insecto"], a: 1 },
+        { q: "¿Qué fruta tiene las semillas por fuera?", o: ["Manzana", "Naranja", "Fresa", "Plátano"], a: 2 },
+        { q: "¿Cuántos lados tiene un hexágono?", o: ["5", "6", "7", "8"], a: 1 },
+        { q: "¿Qué color resulta de mezclar azul y amarillo?", o: ["Rojo", "Naranja", "Verde", "Morado"], a: 2 },
+        { q: "¿Cuál es la capital de Portugal?", o: ["Oporto", "Braga", "Coímbra", "Lisboa"], a: 3 },
+        { q: "¿Qué inventaron los hermanos Wright?", o: ["El avión", "El teléfono", "La radio", "La bombilla"], a: 0 },
+        { q: "¿Cuál es el océano más pequeño del mundo?", o: ["Índico", "Ártico", "Antártico", "Pacífico"], a: 1 },
+        { q: "¿Qué país tiene forma de bota?", o: ["España", "Francia", "Italia", "Grecia"], a: 2 }
     ];
 
     const hoy = new Date().toISOString().split("T")[0];
     let startTime, timerInterval, currentQuestions = [], currentStep = 0, score = 0, playingDate = "";
 
+    // 1. GESTIÓN USUARIO
     function checkAuth() {
         const name = localStorage.getItem('triviaUser');
         if (!name) showScreen('screen-auth');
@@ -190,15 +311,18 @@
         if (val.length >= 3) {
             localStorage.setItem('triviaUser', val);
             checkAuth();
-        } else alert("Nombre muy corto.");
+        } else alert("Nombre muy corto (mín. 3 letras).");
     }
 
+    // 2. LÓGICA JUEGO
     function initGame(mode) {
         playingDate = (mode === 'today') ? hoy : document.getElementById('calendar-input').value;
         if (!playingDate) return;
+
         const seed = playingDate.split("-").join("");
         currentQuestions = getDailySet(seed);
         currentStep = 0; score = 0;
+        
         showScreen('screen-game');
         startTimer();
         loadQuestion();
@@ -208,9 +332,15 @@
         let set = [];
         let tempBank = [...masterBank];
         let s = parseInt(seed);
+        // Mezcla determinista del banco basada en la fecha para variar las preguntas iniciales
+        for (let i = tempBank.length - 1; i > 0; i--) {
+            s = (s * 9301 + 49297) % 233280; // RNG muy simple pero determinista
+            let j = s % (i + 1);
+            [tempBank[i], tempBank[j]] = [tempBank[j], tempBank[i]];
+        }
+        // Selecciona 10 preguntas
         for(let i=0; i<10; i++) {
-            let index = (s + (i * 13)) % tempBank.length;
-            set.push(tempBank.splice(index % tempBank.length, 1)[0]);
+            set.push(tempBank[i % tempBank.length]);
         }
         return set;
     }
@@ -221,14 +351,24 @@
         document.getElementById('q-text').innerText = q.q;
         const box = document.getElementById('options-box');
         box.innerHTML = '';
+
         q.o.forEach((opt, i) => {
             const b = document.createElement('button');
             b.className = 'opt-btn';
             b.innerText = opt;
             b.onclick = () => {
+                // Bloquea clics múltiples
                 if(document.querySelector('.correct')) return;
-                if(i === q.a) { b.classList.add('correct'); score++; }
-                else { b.classList.add('wrong'); document.querySelectorAll('.opt-btn')[q.a].classList.add('correct'); }
+                
+                if(i === q.a) {
+                    b.classList.add('correct');
+                    score++;
+                } else {
+                    b.classList.add('wrong');
+                    document.querySelectorAll('.opt-btn')[q.a].classList.add('correct');
+                }
+                
+                // Espera 1s antes de la siguiente
                 setTimeout(() => {
                     currentStep++;
                     if(currentStep < 10) loadQuestion();
@@ -245,59 +385,102 @@
         showScreen('screen-result');
         document.getElementById('final-stats').innerText = `${score}/10`;
         document.getElementById('final-time').innerText = `Tiempo total: ${timeStr}`;
+
         if(playingDate === hoy) {
             saveResult(score, timeStr);
             updateStreak();
         }
     }
 
+    // 3. NUBE Y RANKING (Con desempate por tiempo y rellenado)
     function saveResult(pts, time) {
         const name = localStorage.getItem('triviaUser');
         const recordID = name + "_" + hoy;
+        
+        // Evita sobreescribir si ya jugó hoy (anti-trampas local básico)
+        if(localStorage.getItem('lastPlayed_' + hoy)) return;
+
         database.ref('ranking/' + recordID).set({
-            user: name, points: pts, time: time, date: hoy, timestamp: Date.now()
+            user: name,
+            points: pts,
+            time: time,
+            date: hoy,
+            timestamp: Date.now()
         });
         localStorage.setItem('lastPlayed_' + hoy, 'true');
     }
 
     function renderLeaderboard() {
+        // Escucha solo los datos de HOY
         database.ref('ranking').orderByChild('date').equalTo(hoy).on('value', (snapshot) => {
             let data = [];
-            snapshot.forEach(child => data.push(child.val()));
-            data.sort((a,b) => b.points - a.points || a.time.localeCompare(b.time));
+            snapshot.forEach(child => {
+                data.push(child.val());
+            });
 
+            // Ordenar: Más puntos primero, luego menos tiempo
+            data.sort((a,b) => {
+                if (b.points !== a.points) return b.points - a.points;
+                return a.time.localeCompare(b.time); // Compara strings '00:30' < '00:40'
+            });
+
+            const list = document.getElementById('lead-list');
             let html = "";
+            
+            // Muestra Top 10, rellenando si hay menos
             for (let i = 0; i < 10; i++) {
                 if (data[i]) {
                     html += `
                         <div class="entry">
-                            <span><b class="rank">#${i+1}</b> ${data[i].user}</span>
-                            <span>${data[i].points}/10 <small style="opacity:0.5">${data[i].time}</small></span>
+                            <div class="entry-left">
+                                <span class="rank">#${i+1}</span>
+                                <span class="username">${data[i].user}</span>
+                            </div>
+                            <div class="entry-right">
+                                <span>${data[i].points}/10 <small style="opacity:0.5">${data[i].time}</small></span>
+                            </div>
                         </div>`;
                 } else {
                     html += `
                         <div class="entry">
-                            <span><b class="rank">#${i+1}</b> <span class="empty-slot">Esperando retador...</span></span>
-                            <span>--</span>
+                            <div class="entry-left">
+                                <span class="rank">#${i+1}</span>
+                                <span class="empty-slot">Esperando retador...</span>
+                            </div>
+                            <div class="entry-right">
+                                <span>--</span>
+                            </div>
                         </div>`;
                 }
             }
-            document.getElementById('lead-list').innerHTML = html;
+            list.innerHTML = html;
         });
+        
+        // Actualiza racha visual
         document.getElementById('streak-num').innerText = localStorage.getItem('userStreak') || 0;
     }
 
+    // 4. LÓGICA DE RACHA (Diaria)
     function updateStreak() {
         let streak = parseInt(localStorage.getItem('userStreak') || 0);
         let lastDate = localStorage.getItem('lastDatePlayed');
-        const ayer = new Date(); ayer.setDate(ayer.getDate() - 1);
+        
+        const ayer = new Date();
+        ayer.setDate(ayer.getDate() - 1);
         const ayerStr = ayer.toISOString().split("T")[0];
-        if(lastDate === ayerStr) streak++;
-        else if(lastDate !== hoy) streak = 1;
+
+        if(lastDate === ayerStr) {
+            streak++; // Jugó ayer, suma racha
+        } else if(lastDate !== hoy) {
+            streak = 1; // Se saltó un día o es el primero, resetea a 1
+        }
+        // Si lastDate === hoy, no hace nada (ya sumó hoy)
+        
         localStorage.setItem('userStreak', streak);
         localStorage.setItem('lastDatePlayed', hoy);
     }
 
+    // 5. UTILIDADES
     function checkTodayStatus() {
         if(localStorage.getItem('lastPlayed_' + hoy)) {
             const btn = document.getElementById('play-today-btn');
@@ -312,7 +495,8 @@
             let diff = Date.now() - start;
             let m = Math.floor(diff / 60000);
             let s = Math.floor((diff % 60000) / 1000);
-            document.getElementById('timer').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            document.getElementById('timer').innerText = 
+                `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
         }, 1000);
     }
 
@@ -321,7 +505,9 @@
         document.getElementById(id).classList.add('active');
     }
 
+    // Iniciar
     checkAuth();
 </script>
+
 </body>
 </html>
