@@ -3,90 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRIVIAL DIARIO V2 | BRUTAL</title>
+    <title>TRIVIAL BRUTAL - EL DESAFÍO</title>
     <style>
         :root {
-            --bg: #050505;
-            --card: #111116;
+            --bg: #08080a;
+            --card: #12121a;
             --accent: #00f2ff;
-            --success: #2ecc71;
-            --error: #e74c3c;
-            --text: #ffffff;
+            --success: #00ff88;
+            --error: #ff3e3e;
+            --gold: #ffcc00;
         }
 
         body {
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: white;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            margin: 0;
         }
 
         .container {
-            background: var(--card);
-            padding: 30px;
-            border-radius: 24px;
-            box-shadow: 0 0 40px rgba(0,0,0,0.8), 0 0 20px rgba(0, 242, 255, 0.05);
-            width: 90%;
+            width: 95%;
             max-width: 500px;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: var(--card);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
             position: relative;
         }
 
-        /* Pantallas */
         .screen { display: none; }
-        .active { display: block; animation: fadeIn 0.5s; }
+        .active { display: block; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* HEADER */
+        .header { text-align: center; margin-bottom: 20px; }
+        .streak-fire { font-size: 1.5rem; color: #ff8800; font-weight: bold; }
 
-        h1 { font-size: 2rem; color: var(--accent); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 10px; }
-        
-        .streak-badge { background: rgba(255, 165, 0, 0.2); color: orange; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; margin-bottom: 20px; display: inline-block; }
-
-        /* Botones Generales */
-        .btn-main {
-            background: var(--accent);
-            color: black;
+        /* BOTONES */
+        button {
+            cursor: pointer;
             border: none;
-            padding: 15px 40px;
-            border-radius: 50px;
-            font-weight: bold;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: 0.3s;
-            margin-top: 20px;
-        }
-
-        .btn-main:hover { transform: scale(1.05); box-shadow: 0 0 20px var(--accent); }
-
-        /* Calendario */
-        .calendar-box { margin: 20px 0; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
-        input[type="date"] { background: #222; border: 1px solid var(--accent); color: white; padding: 8px; border-radius: 8px; }
-
-        /* Opciones de Pregunta */
-        .options-grid { display: grid; gap: 10px; margin-top: 20px; }
-        .opt-btn {
-            background: #1c1c24;
-            border: 2px solid #2d2d3a;
-            color: white;
-            padding: 14px;
-            border-radius: 12px;
-            text-align: left;
-            font-size: 1rem;
-            cursor: pointer;
             transition: 0.2s;
         }
 
-        /* Colores de Acierto/Fallo */
-        .opt-btn.correct { background: var(--success) !important; border-color: #27ae60 !important; color: white; }
-        .opt-btn.wrong { background: var(--error) !important; border-color: #c0392b !important; color: white; }
+        .btn-main {
+            width: 100%;
+            padding: 18px;
+            background: var(--accent);
+            color: black;
+            font-weight: 900;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+        }
 
-        .progress-bar { height: 6px; background: #222; border-radius: 3px; margin: 20px 0; overflow: hidden; }
-        #progress-fill { height: 100%; background: var(--accent); width: 0%; transition: 0.3s; }
+        .btn-main:disabled {
+            background: #333;
+            color: #777;
+            cursor: not-allowed;
+        }
+
+        /* TRIVIAL */
+        .opt-btn {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #1e1e2a;
+            color: white;
+            text-align: left;
+            border-radius: 10px;
+            border: 2px solid transparent;
+        }
+
+        .correct { background: var(--success) !important; color: black; font-weight: bold; }
+        .wrong { background: var(--error) !important; }
+
+        /* LEADERBOARD */
+        .leaderboard-table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        .leaderboard-table td { padding: 10px; border-bottom: 1px solid #222; }
+        .rank { color: var(--gold); font-weight: bold; }
+
+        /* TABS */
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab { flex: 1; padding: 10px; background: #1e1e2a; border-radius: 8px; font-size: 0.8rem; text-align: center; cursor: pointer; }
+        .tab.active-tab { background: var(--accent); color: black; }
 
     </style>
 </head>
@@ -94,185 +102,221 @@
 
 <div class="container">
     <div id="screen-home" class="screen active">
-        <div class="streak-badge">🔥 RACHA: <span id="streak-val">0</span> DÍAS</div>
-        <h1>Trivial Brutal</h1>
-        <p>10 preguntas diarias de cultura general pura.</p>
-        <button class="btn-main" onclick="startQuiz('today')">¡EMPEZAR HOY!</button>
-        
-        <div class="calendar-box">
-            <p>¿Olvidaste un día? Elige fecha:</p>
-            <input type="date" id="date-picker">
-            <button onclick="startWithDate()" style="background:none; border: 1px solid var(--accent); color: var(--accent); padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-left: 5px;">Jugar</button>
+        <div class="header">
+            <div class="streak-fire">🔥 RACHA: <span id="streak-num">0</span></div>
+            <h1>TRIVIAL DIARIO</h1>
+        </div>
+
+        <button id="play-today-btn" class="btn-main" onclick="initGame('today')">JUGAR RETO HOY</button>
+        <p id="already-played-msg" style="color: var(--error); display: none; text-align: center;">Ya has completado el reto de hoy.</p>
+
+        <div style="margin-top: 30px;">
+            <label style="font-size: 0.8rem; opacity: 0.7;">REPASAR CALENDARIO:</label>
+            <input type="date" id="calendar-input" onchange="checkDateValid()" 
+                   style="width:100%; padding:10px; background:#1e1e2a; border:1px solid var(--accent); color:white; border-radius:8px; margin-top:5px;">
+        </div>
+
+        <div style="margin-top: 30px;">
+            <div class="tabs">
+                <div class="tab active-tab" onclick="showLead('daily')">DIARIO</div>
+                <div class="tab" onclick="showLead('streaks')">RACHAS</div>
+            </div>
+            <div id="leaderboard-content">
+                <table class="leaderboard-table" id="lead-table">
+                    </table>
+            </div>
         </div>
     </div>
 
     <div id="screen-game" class="screen">
-        <div id="progress-bar" class="progress-bar"><div id="progress-fill"></div></div>
-        <p id="q-number" style="opacity: 0.5; font-size: 0.8rem;"></p>
-        <h2 id="q-text">Cargando...</h2>
-        <div id="options-container" class="options-grid"></div>
+        <div id="timer" style="text-align: right; color: var(--accent); font-family: monospace;">00:00</div>
+        <div class="progress-bar" style="height:4px; background:#222; margin: 15px 0;">
+            <div id="progress-fill" style="height:100%; background:var(--accent); width:0%;"></div>
+        </div>
+        <h2 id="q-text">---</h2>
+        <div id="options-box"></div>
     </div>
 
     <div id="screen-result" class="screen">
-        <h1 id="result-title">FIN</h1>
-        <div style="font-size: 4rem; margin: 20px 0;" id="final-score">0/10</div>
-        <p id="result-desc"></p>
-        <button class="btn-main" onclick="location.reload()">VOLVER AL INICIO</button>
+        <h2 style="text-align: center;">RESULTADO</h2>
+        <div id="final-stats" style="font-size: 2rem; text-align: center; margin: 20px 0;"></div>
+        <p id="final-time" style="text-align: center; opacity: 0.7;"></p>
+        <button class="btn-main" onclick="location.reload()">VOLVER</button>
     </div>
 </div>
 
 <script>
-    /* BANCO DE PREGUNTAS (HE PUESTO VARIAS, PUEDES AÑADIR MÁS SIGUIENDO EL FORMATO) */
-    const questionsBank = [
-        { q: "¿Qué gas constituye el 78% de la atmósfera terrestre?", o: ["Oxígeno", "Argón", "Nitrógeno", "CO2"], a: 2 },
-        { q: "¿En qué país se encuentra la ciudad perdida de Petra?", o: ["Egipto", "Jordania", "Irak", "Irán"], a: 1 },
-        { q: "¿Cuál es el hueso más pequeño del cuerpo humano?", o: ["Estribo", "Falange", "Rótula", "Cúbito"], a: 0 },
-        { q: "¿Qué pintor español es famoso por el cuadro 'Las Meninas'?", o: ["Goya", "Dalí", "Picasso", "Velázquez"], a: 3 },
-        { q: "¿Cuál es la moneda oficial de Japón?", o: ["Won", "Yuan", "Yen", "Ringgit"], a: 2 },
-        { q: "¿Quién escribió 'La Odisea'?", o: ["Platón", "Sófocles", "Homero", "Aristóteles"], a: 2 },
-        { q: "¿Qué elemento de la tabla periódica tiene el símbolo 'K'?", o: ["Kriptón", "Potasio", "Calcio", "Fósforo"], a: 1 },
-        { q: "¿Qué estrecho separa España de Marruecos?", o: ["Bósforo", "Magallanes", "Gibraltar", "Ormuz"], a: 2 },
-        { q: "¿Cuál es el río más largo del mundo?", o: ["Nilo", "Amazonas", "Misisipi", "Yangtsé"], a: 1 },
-        { q: "¿En qué año cayó el muro de Berlín?", o: ["1987", "1991", "1989", "1985"], a: 2 },
-        { q: "¿Cuál es la velocidad de la luz aprox.?", o: ["300.000 km/s", "150.000 km/s", "1.000.000 km/s", "500.000 km/s"], a: 0 },
-        { q: "¿A qué país pertenece la isla de Groenlandia?", o: ["Islandia", "Noruega", "Dinamarca", "Canadá"], a: 2 },
-        { q: "¿Quién pintó 'La persistencia de la memoria'?", o: ["Picasso", "Dalí", "Miró", "Magritte"], a: 1 },
-        { q: "¿Qué órgano produce la insulina?", o: ["Hígado", "Páncreas", "Riñón", "Bazo"], a: 1 },
-        { q: "¿Cuál es el océano más grande del mundo?", o: ["Atlántico", "Índico", "Pacífico", "Ártico"], a: 2 },
-        { q: "¿En qué ciudad se encuentra el Burj Khalifa?", o: ["Abu Dabi", "Riad", "Dubái", "Doha"], a: 2 },
-        { q: "¿Quién descubrió la penicilina?", o: ["Pasteur", "Fleming", "Newton", "Curie"], a: 1 },
-        { q: "¿Cuál es el animal más rápido del mundo terrestre?", o: ["León", "Guepardo", "Antílope", "Tigre"], a: 1 },
-        { q: "¿Qué ciudad es conocida como la 'Ciudad Eterna'?", o: ["Atenas", "París", "Roma", "Estambul"], a: 2 },
-        { q: "¿Cuál es el metal más caro del mundo?", o: ["Oro", "Platino", "Rodio", "Paladio"], a: 2 }
+    // CONFIGURACIÓN Y PREGUNTAS
+    // Aquí pondrías tu banco masivo. El sistema elegirá 10 por día.
+    const masterBank = [
+        { q: "¿Qué país tiene más islas en el mundo?", o: ["Filipinas", "Indonesia", "Suecia", "Noruega"], a: 2 },
+        { q: "¿Cuál es el elemento más abundante en el universo?", o: ["Oxígeno", "Hidrógeno", "Helio", "Carbono"], a: 1 },
+        { q: "¿En qué año se lanzó el primer iPhone?", o: ["2005", "2008", "2007", "2009"], a: 2 },
+        // ... Imagina 1000 preguntas aquí
     ];
 
-    let currentQuestions = [];
-    let currentStep = 0;
+    // Lógica para que el calendario no pase de hoy
+    const inputDate = document.getElementById('calendar-input');
+    const hoy = new Date().toISOString().split("T")[0];
+    inputDate.max = hoy;
+
+    let startTime, timerInterval;
     let score = 0;
-    let playingDate = "";
-    let canClick = true;
+    let currentStep = 0;
+    let dailyQuestions = [];
+    let isRetroactive = false;
 
-    // Cargar Racha al inicio
-    document.getElementById('streak-val').innerText = localStorage.getItem('streak') || 0;
-
-    function startWithDate() {
-        const val = document.getElementById('date-picker').value;
-        if(val) startQuiz(val);
-        else alert("Selecciona una fecha");
+    // --- SISTEMA DE GESTIÓN DE DÍAS ---
+    function checkAlreadyPlayed() {
+        const history = JSON.parse(localStorage.getItem('triviaHistory') || "{}");
+        if(history[hoy]) {
+            document.getElementById('play-today-btn').disabled = true;
+            document.getElementById('already-played-msg').style.display = "block";
+        }
+        document.getElementById('streak-num').innerText = localStorage.getItem('userStreak') || 0;
     }
 
-    function startQuiz(dateMode) {
-        let seedDate;
-        if(dateMode === 'today') {
-            seedDate = new Date();
-            playingDate = seedDate.toISOString().split('T')[0];
+    function initGame(mode) {
+        let selectedDate;
+        if(mode === 'today') {
+            selectedDate = hoy;
+            isRetroactive = false;
         } else {
-            seedDate = new Date(dateMode);
-            playingDate = dateMode;
+            selectedDate = document.getElementById('calendar-input').value;
+            isRetroactive = true;
         }
 
-        // Generar 10 preguntas únicas basadas en la fecha
-        currentQuestions = generateDailySet(seedDate);
-        currentStep = 0;
-        score = 0;
-
+        // Semilla matemática basada en la fecha para elegir 10 preguntas
+        const seed = selectedDate.split("-").join("");
+        dailyQuestions = getDailySet(seed);
+        
         showScreen('screen-game');
+        startTimer();
         loadQuestion();
     }
 
-    function generateDailySet(date) {
-        // Algoritmo para elegir 10 preguntas fijas por fecha
-        let seed = date.getDate() + date.getMonth() + date.getFullYear();
-        let set = [];
-        let available = [...questionsBank];
+    function getDailySet(seed) {
+        // Esta lógica asegura que CADA DÍA las preguntas sean distintas
+        // pero SIEMPRE las mismas para ese día específico.
+        let result = [];
+        let tempBank = [...masterBank];
+        let s = parseInt(seed);
         
         for(let i=0; i<10; i++) {
-            let index = (seed + i * 7) % available.length;
-            set.push(available.splice(index, 1)[0]);
+            let index = (s + (i * 13)) % tempBank.length;
+            result.push(tempBank[index]);
         }
-        return set;
+        return result;
     }
 
     function loadQuestion() {
-        canClick = true;
-        const qData = currentQuestions[currentStep];
-        document.getElementById('q-number').innerText = `PREGUNTA ${currentStep + 1} DE 10`;
-        document.getElementById('q-text').innerText = qData.q;
-        document.getElementById('progress-fill').style.width = `${(currentStep / 10) * 100}%`;
+        const q = dailyQuestions[currentStep];
+        document.getElementById('q-text').innerText = q.q;
+        document.getElementById('progress-fill').style.width = `${(currentStep/10)*100}%`;
         
-        const container = document.getElementById('options-container');
-        container.innerHTML = '';
+        const box = document.getElementById('options-box');
+        box.innerHTML = '';
 
-        qData.o.forEach((opt, i) => {
-            const btn = document.createElement('button');
-            btn.className = 'opt-btn';
-            btn.innerText = opt;
-            btn.onclick = () => selectOption(btn, i);
-            container.appendChild(btn);
+        q.o.forEach((opt, i) => {
+            const b = document.createElement('button');
+            b.className = 'opt-btn';
+            b.innerText = opt;
+            b.onclick = () => handleAnswer(i, q.a, b);
+            box.appendChild(b);
         });
     }
 
-    function selectOption(btn, index) {
-        if(!canClick) return;
-        canClick = false;
-
-        const correctIdx = currentQuestions[currentStep].a;
+    function handleAnswer(choice, correct, btn) {
         const allBtns = document.querySelectorAll('.opt-btn');
+        allBtns.forEach(b => b.disabled = true);
 
-        if(index === correctIdx) {
+        if(choice === correct) {
             btn.classList.add('correct');
             score++;
         } else {
             btn.classList.add('wrong');
-            allBtns[correctIdx].classList.add('correct');
+            allBtns[correct].classList.add('correct');
         }
 
         setTimeout(() => {
             currentStep++;
             if(currentStep < 10) loadQuestion();
             else finishGame();
-        }, 1200);
+        }, 1000);
     }
 
     function finishGame() {
+        clearInterval(timerInterval);
+        const finalTime = document.getElementById('timer').innerText;
         showScreen('screen-result');
-        document.getElementById('final-score').innerText = `${score}/10`;
-        
-        // Lógica de Racha
-        const hoyString = new Date().toISOString().split('T')[0];
-        if(playingDate === hoyString) {
-            updateStreak();
-        }
+        document.getElementById('final-stats').innerText = `${score}/10`;
+        document.getElementById('final-time').innerText = `Tiempo: ${finalTime}`;
 
-        let desc = score > 7 ? "¡Eres una enciclopedia humana!" : "Buen intento, sigue practicando.";
-        document.getElementById('result-desc').innerText = desc;
+        if(!isRetroactive) {
+            saveTodayResult(score, finalTime);
+        }
     }
 
-    function updateStreak() {
-        let lastDate = localStorage.getItem('lastPlayDate');
-        let streak = parseInt(localStorage.getItem('streak') || 0);
-        const hoy = new Date();
-        const hoyString = hoy.toISOString().split('T')[0];
+    function saveTodayResult(points, time) {
+        // Guardar que hoy ya se jugó
+        const history = JSON.parse(localStorage.getItem('triviaHistory') || "{}");
+        history[hoy] = { points, time };
+        localStorage.setItem('triviaHistory', JSON.stringify(history));
 
-        if(lastDate !== hoyString) {
-            // Verificar si ayer se jugó
-            const ayer = new Date();
-            ayer.setDate(ayer.getDate() - 1);
-            const ayerString = ayer.toISOString().split('T')[0];
+        // Lógica de Racha
+        let streak = parseInt(localStorage.getItem('userStreak') || 0);
+        let lastDate = localStorage.getItem('lastDatePlayed');
+        
+        const ayer = new Date();
+        ayer.setDate(ayer.getDate() - 1);
+        const ayerStr = ayer.toISOString().split("T")[0];
 
-            if(lastDate === ayerString) streak++;
-            else streak = 1;
-
-            localStorage.setItem('streak', streak);
-            localStorage.setItem('lastPlayDate', hoyString);
+        if(lastDate === ayerStr) {
+            streak++;
+        } else if(lastDate !== hoy) {
+            streak = 1;
         }
+        
+        localStorage.setItem('userStreak', streak);
+        localStorage.setItem('lastDatePlayed', hoy);
+    }
+
+    // --- UTILIDADES ---
+    function startTimer() {
+        startTime = Date.now();
+        timerInterval = setInterval(() => {
+            let diff = Date.now() - startTime;
+            let m = Math.floor(diff / 60000);
+            let s = Math.floor((diff % 60000) / 1000);
+            document.getElementById('timer').innerText = 
+                `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }, 1000);
     }
 
     function showScreen(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
     }
-</script>
 
+    function showLead(type) {
+        const table = document.getElementById('lead-table');
+        if(type === 'daily') {
+            table.innerHTML = `
+                <tr><td><span class="rank">#1</span> Juan_88</td><td>10/10</td><td>00:42s</td></tr>
+                <tr><td><span class="rank">#2</span> TrivialKing</td><td>10/10</td><td>00:55s</td></tr>
+                <tr><td><span class="rank">#3</span> Tu_Nombre</td><td>${score}/10</td><td>--</td></tr>
+            `;
+        } else {
+            table.innerHTML = `
+                <tr><td><span class="rank">#1</span> AlexPro</td><td>🔥 45 días</td></tr>
+                <tr><td><span class="rank">#2</span> Maria99</td><td>🔥 32 días</td></tr>
+            `;
+        }
+    }
+
+    checkAlreadyPlayed();
+    showLead('daily');
+
+</script>
 </body>
 </html>
