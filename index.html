@@ -47,7 +47,6 @@
 
         h1 { font-weight: 900; letter-spacing: -1px; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
         
-        /* Botones y Inputs */
         .btn-main {
             width: 100%;
             padding: 18px;
@@ -76,7 +75,6 @@
             outline: none;
         }
 
-        /* Trivia */
         .opt-btn {
             width: 100%;
             padding: 16px;
@@ -92,7 +90,6 @@
         .correct { background: var(--success) !important; color: black; font-weight: bold; }
         .wrong { background: var(--error) !important; }
 
-        /* Leaderboard */
         .leaderboard { margin-top: 30px; background: rgba(0,0,0,0.3); border-radius: 15px; padding: 15px; border: 1px solid #222; }
         .entry { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; }
         .entry:last-child { border: none; }
@@ -148,20 +145,20 @@
 </div>
 
 <script>
-    // --- CONFIGURACIÓN FIREBASE (REEMPLAZA ESTO) ---
+    // --- CONFIGURACIÓN FIREBASE ---
     const firebaseConfig = {
-        apiKey: "TU_API_KEY",
-        authDomain: "tu-proyecto.firebaseapp.com",
-        databaseURL: "https://tu-proyecto.firebaseio.com",
-        projectId: "tu-proyecto",
-        storageBucket: "tu-proyecto.appspot.com",
-        messagingSenderId: "xxxx",
-        appId: "xxxx"
+        apiKey: "TU_API_KEY_REAL", // Cámbialo por tu API Key
+        authDomain: "trivialbrutal.firebaseapp.com", // Cámbialo por tu dominio
+        databaseURL: "https://trivialbrutal-default-rtdb.firebaseio.com", // URL INSERTADA
+        projectId: "trivialbrutal", // Cámbialo por tu ID de proyecto
+        storageBucket: "trivialbrutal.appspot.com",
+        messagingSenderId: "TU_SENDER_ID",
+        appId: "TU_APP_ID"
     };
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // --- BANCO DE PREGUNTAS (Añade hasta 7000 aquí) ---
+    // --- BANCO DE PREGUNTAS ---
     const masterBank = [
         { q: "¿Qué gas constituye el 78% de la atmósfera?", o: ["Oxígeno", "Nitrógeno", "Argón", "CO2"], a: 1 },
         { q: "¿En qué año se hundió el Titanic?", o: ["1912", "1905", "1915", "1920"], a: 0 },
@@ -178,7 +175,6 @@
     const hoy = new Date().toISOString().split("T")[0];
     let startTime, timerInterval, currentQuestions = [], currentStep = 0, score = 0, playingDate = "";
 
-    // 1. GESTIÓN USUARIO
     function checkAuth() {
         const name = localStorage.getItem('triviaUser');
         if (!name) showScreen('screen-auth');
@@ -199,7 +195,6 @@
         } else alert("Nombre muy corto.");
     }
 
-    // 2. LÓGICA JUEGO
     function initGame(mode) {
         playingDate = (mode === 'today') ? hoy : document.getElementById('calendar-input').value;
         if (!playingDate) return;
@@ -263,7 +258,6 @@
         }
     }
 
-    // 3. NUBE Y RANKING
     function saveResult(pts, time) {
         const name = localStorage.getItem('triviaUser');
         const recordID = name + "_" + hoy;
