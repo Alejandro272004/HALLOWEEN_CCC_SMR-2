@@ -1,518 +1,280 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
+  <meta charset="UTF-8">
+  <title>ScapeRun Halloween</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: black;
+      overflow: hidden;
+      font-family: 'Arial', sans-serif;
+    }
+
+    #game-area {
+      position: relative;
+      width: 800px;
+      height: 600px;
+      margin: 20px auto;
+      background: url('https://i.imgur.com/ZL4Ru2g.jpg') no-repeat center center;
+      background-size: cover;
+      border: 5px solid crimson;
+      box-shadow: 0 0 20px red;
+    }
+
+    #player {
+      position: absolute;
+      top: 100px;
+      left: 100px;
+      width: 40px;
+      height: 40px;
+      background: url('https://i.imgur.com/VcM1Yfa.png') no-repeat center center;
+      background-size: cover;
+      z-index: 10;
+    }
+
+    .door {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      background-color: rgba(255, 0, 0, 0.4);
+      border: 2px solid white;
+      color: white;
+      font-size: 30px;
+      text-align: center;
+      line-height: 60px;
+      text-decoration: none;
+      border-radius: 10px;
+      transition: transform 0.3s;
+      z-index: 5;
+    }
+
+    .door:hover {
+      transform: scale(1.2);
+      cursor: pointer;
+      background-color: crimson;
+    }
+
+    /* Posiciones de puertas */
+    #door1 { top: 100px; left: 600px; }
+    #door2 { top: 300px; left: 100px; }
+    #door3 { top: 400px; left: 600px; }
+    #door4 { top: 200px; left: 300px; }
+
+    /* UI */
+    #instructions {
+      color: white;
+      text-align: center;
+      margin-top: 10px;
+      font-size: 18px;
+    }
+  </style>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRIVIAL BRUTAL DIARIO</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
-
+    <title>ScapeRun Halloween</title>
     <style>
-        :root {
-            --bg: #08080a;
-            --card: #12121a;
-            --accent: #00f2ff;
-            --success: #00ff88;
-            --error: #ff3e3e;
-            --gold: #ffcc00;
-            --text: #ffffff;
-        }
-
         body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: 'Inter', sans-serif;
             margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        /* --- NUEVO CONTENEDOR PRINCIPAL --- */
-        .main-wrapper {
-            display: flex;
-            gap: 40px; /* Espacio entre el ranking y el juego */
-            width: 95%;
-            max-width: 1200px; /* Ancho máximo para el conjunto */
-            align-items: flex-start; /* Alineación arriba */
-        }
-
-        /* --- ÁREA DE JUEGO (Centrada y responsive) --- */
-        .game-area {
-            flex-grow: 1; /* Ocupa el espacio restante */
-            display: flex;
-            justify-content: center; /* Centra el container dentro del área de juego */
-        }
-
-        .container {
-            width: 100%;
-            max-width: 480px; /* Ancho máximo original del juego */
-            background: var(--card);
-            border-radius: 24px;
-            padding: 30px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-            border: 1px solid rgba(255,255,255,0.05);
-            box-sizing: border-box;
-            text-align: center;
-        }
-
-        .screen { display: none; }
-        .active { display: block; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        h1 { font-weight: 900; letter-spacing: -1px; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; text-align: center; }
-        
-        .btn-main {
-            width: 100%;
-            padding: 18px;
-            background: var(--accent);
-            color: black;
-            font-weight: 900;
-            border: none;
-            border-radius: 12px;
-            margin-top: 20px;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: 0.3s;
-        }
-        .btn-main:hover { transform: scale(1.02); filter: brightness(1.1); }
-        .btn-main:disabled { background: #333; color: #666; cursor: not-allowed; }
-
-        input[type="text"], input[type="date"] {
-            width: 100%;
-            padding: 14px;
-            background: #1e1e2a;
-            border: 1px solid #333;
-            color: white;
-            border-radius: 10px;
-            margin-top: 10px;
-            box-sizing: border-box;
-            outline: none;
-            text-align: center;
-        }
-
-        .opt-btn {
-            width: 100%;
-            padding: 16px;
-            margin-bottom: 12px;
-            background: #1c1c26;
-            color: white;
-            text-align: left;
-            border-radius: 12px;
-            border: 2px solid transparent;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .correct { background: var(--success) !important; color: black; font-weight: bold; }
-        .wrong { background: var(--error) !important; }
-
-        /* --- LEADERBOARD (Ubicación separada a la izquierda) --- */
-        .sidebar-ranking {
-            width: 380px; /* Ancho fijo para el ranking */
-            flex-shrink: 0; /* No se encoge */
-        }
-
-        /* --- CSS ORIGINAL DEL RANKING (Sin cambios) --- */
-        .leaderboard { 
-            background: #0d0d12; /* Fondo de la imagen original */
-            border-radius: 18px; 
-            padding: 25px; 
-            border: 1px solid #222;
-            text-align: left !important;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-        }
-
-        .leaderboard h3 {
-            margin: 0 0 18px 0; 
-            font-size: 0.95rem; 
-            text-transform: uppercase; 
-            color: var(--accent);
-            letter-spacing: 1.5px;
-            font-weight: 900;
-            text-align: left !important;
-        }
-
-        .entry { 
-            display: flex; 
-            justify-content: flex-start;
-            padding: 12px 0; 
-            border-bottom: 1px solid rgba(255,255,255,0.05); 
-            align-items: center;
-            text-align: left !important;
-        }
-        .entry:last-child { border: none; }
-
-        .rank { 
-            color: var(--gold); 
-            font-weight: 900; 
-            width: 35px; 
-            flex-shrink: 0;
-            text-align: left;
-            font-size: 1.1rem;
-        }
-
-        .username {
-            flex-grow: 1; 
-            font-weight: 500;
-            color: white;
-            white-space: nowrap;
+            background-color: black;
             overflow: hidden;
-            text-overflow: ellipsis;
-            margin-right: 15px;
-            text-align: left;
-            font-size: 1rem;
+            font-family: 'Arial', sans-serif;
         }
 
-        .score-tag {
-            flex-shrink: 0;
-            font-family: monospace;
-            background: rgba(255,255,255,0.08);
-            color: #ccc;
-            padding: 3px 10px;
-            border-radius: 5px;
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 5px;
+        #game-area {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            margin: 20px auto;
+            background: url('tu-fondo.jpg') no-repeat center center;
+            background-size: cover;
+            border: 5px solid crimson;
+            box-shadow: 0 0 20px red;
         }
-        .score-tag small { opacity: 0.6; }
 
-        .empty-slot { color: #555; font-style: italic; font-size: 0.9rem; }
-        .streak-fire { text-align: center; color: #ff8800; font-weight: 900; font-size: 1.2rem; margin-bottom: 10px; }
-        #timer { font-family: monospace; color: var(--accent); font-size: 1.2rem; }
+        #player {
+            position: absolute;
+            top: 100px;
+            left: 100px;
+            width: 40px;
+            height: 40px;
+            background: url('https://i.imgur.com/VcM1Yfa.png') no-repeat center center;
+            background-size: cover;
+            z-index: 10;
+        }
 
-        /* Responsive para móviles: apila el ranking arriba del juego */
-        @media (max-width: 900px) {
-            .main-wrapper {
-                flex-direction: column;
-                align-items: center;
-                gap: 20px;
-            }
-            .sidebar-ranking {
-                width: 100%;
-                max-width: 480px; /* Igual que el juego */
-            }
+        .door {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background-color: rgba(255, 0, 0, 0.4);
+            border: 2px solid white;
+            color: white;
+            font-size: 30px;
+            text-align: center;
+            line-height: 60px;
+            text-decoration: none;
+            border-radius: 10px;
+            z-index: 5;
+        }
+
+        #door1 {
+            top: 100px;
+            left: 600px;
+        }
+
+        #door2 {
+            top: 300px;
+            left: 100px;
+        }
+
+        #door3 {
+            top: 400px;
+            left: 600px;
+        }
+
+        #door4 {
+            top: 200px;
+            left: 300px;
+        }
+
+        #instructions {
+            color: white;
+            text-align: center;
+            margin-top: 10px;
+            font-size: 18px;
         }
     </style>
 </head>
+
 <body>
 
-<div class="main-wrapper">
-    
-    <aside class="sidebar-ranking">
-        <div class="leaderboard">
-            <h3>Ranking Mundial (Hoy)</h3>
-            <div id="lead-list">Cargando clasificación...</div>
-        </div>
-    </aside>
+  <div id="game-area">
+    <div id="player"></div>
 
-    <main class="game-area">
-        <div class="container">
-            <div id="screen-auth" class="screen">
-                <h1>Tu Nombre</h1>
-                <p style="opacity: 0.7;">Para entrar en el Ranking Mundial:</p>
-                <input type="text" id="username-input" placeholder="Escribe tu apodo...">
-                <button class="btn-main" onclick="saveName()">ENTRAR AL DESAFÍO</button>
-            </div>
+    <!-- Puertas a minijuegos -->
+    <a id="door1" class="door" href="minijuegos/laberinto.html">🎃</a>
+    <a id="door2" class="door" href="minijuegos/diferencias.html">🧟</a>
+    <a id="door3" class="door" href="minijuegos/puzzle.html">🧩</a>
+    <a id="door4" class="door" href="minijuegos/ahorcado.html">💀</a>
+  </div>
 
-            <div id="screen-home" class="screen active">
-                <div class="streak-fire">🔥 RACHA: <span id="streak-num">0</span> DÍAS</div>
-                <h1>Trivial Brutal</h1>
-                <p id="welcome-msg" style="opacity: 0.6; margin-bottom: 25px;">Listo para el reto de hoy.</p>
-                <button id="play-today-btn" class="btn-main" onclick="initGame('today')">JUGAR RETO HOY</button>
-                <div style="margin-top: 25px;">
-                    <label style="font-size: 0.8rem; opacity: 0.5;">REPASAR DÍAS ANTERIORES:</label>
-                    <input type="date" id="calendar-input" onchange="initGame('calendar')">
-                </div>
-                </div>
+  <div id="instructions">
+    Usa las flechas o WASD para mover al personaje. ¡Entra en las puertas para jugar!
+  </div>
 
-            <div id="screen-game" class="screen">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <span id="q-count" style="font-weight: bold; opacity: 0.5;">1/10</span>
-                    <span id="timer">00:00</span>
-                </div>
-                <h2 id="q-text" style="margin: 0; min-height: 80px;">---</h2>
-                <div id="options-box" style="margin-top: 25px;"></div>
-            </div>
+  <script>
+    const player = document.getElementById("player");
+    let posX = 100;
+    let posY = 100;
+    const speed = 10;
 
-            <div id="screen-result" class="screen">
-                <h2 style="text-align: center;">FIN DEL RETO</h2>
-                <div id="final-stats" style="font-size: 4rem; text-align: center; font-weight: 900; color: var(--accent);">0/10</div>
-                <p id="final-time" style="text-align: center; opacity: 0.7;"></p>
-                <button class="btn-main" onclick="location.reload()">VOLVER AL INICIO</button>
-            </div>
-        </div>
-    </main>
+    document.addEventListener("keydown", (e) => {
+      switch (e.key) {
+        case "ArrowUp":
+        case "w":
+          posY -= speed;
+          break;
+        case "ArrowDown":
+        case "s":
+          posY += speed;
+          break;
+        case "ArrowLeft":
+        case "a":
+          posX -= speed;
+          break;
+        case "ArrowRight":
+        case "d":
+          posX += speed;
+          break;
+      }
 
-</div>
+      // Limites de movimiento
+      posX = Math.max(0, Math.min(posX, 760));
+      posY = Math.max(0, Math.min(posY, 560));
 
-<script>
-    // --- CONFIGURACIÓN FIREBASE (REEMPLAZA ESTO CON TUS DATOS REALES) ---
-    const firebaseConfig = {
-        apiKey: "TU_API_KEY_REAL",
-        authDomain: "trivialbrutal.firebaseapp.com",
-        databaseURL: "https://trivialbrutal-default-rtdb.firebaseio.com",
-        projectId: "trivialbrutal",
-        storageBucket: "trivialbrutal.appspot.com",
-        messagingSenderId: "TU_SENDER_ID",
-        appId: "TU_APP_ID"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
+      player.style.left = posX + "px";
+      player.style.top = posY + "px";
+    });
+  </script>
+    <div id="game-area">
+        <div id="player"></div>
 
-    // --- BANCO DE PREGUNTAS (10 base + 50 nuevas = 60 totales) ---
-    // (Mantenido igual)
-    const masterBank = [
-        // Base
-        { q: "¿Qué gas constituye el 78% de la atmósfera?", o: ["Oxígeno", "Nitrógeno", "Argón", "CO2"], a: 1 },
-        { q: "¿En qué año se hundió el Titanic?", o: ["1912", "1905", "1915", "1920"], a: 0 },
-        { q: "¿Cuál es el lugar más profundo de la Tierra?", o: ["Fosa de las Marianas", "Abismo de Java", "Fosa de Puerto Rico", "Tonga"], a: 0 },
-        { q: "¿Quién escribió 'Cien años de soledad'?", o: ["Vargas Llosa", "García Márquez", "Cortázar", "Borges"], a: 1 },
-        { q: "¿Qué planeta tiene más lunas?", o: ["Júpiter", "Saturno", "Marte", "Urano"], a: 1 },
-        { q: "¿Cuál es el hueso más largo del cuerpo?", o: ["Húmero", "Fémur", "Tibia", "Peroné"], a: 1 },
-        { q: "¿Qué país regaló la Estatua de la Libertad a EE.UU.?", o: ["España", "Francia", "Reino Unido", "Italia"], a: 1 },
-        { q: "¿Cuál es la capital de Australia?", o: ["Sídney", "Canberra", "Melbourne", "Perth"], a: 1 },
-        { q: "¿Quién pintó el techo de la Capilla Sixtina?", o: ["Leonardo", "Miguel Ángel", "Rafael", "Donatello"], a: 1 },
-        { q: "¿Cuál es el río más largo del mundo?", o: ["Nilo", "Amazonas", "Yangtsé", "Misisipi"], a: 1 },
-        // Ciencia
-        { q: "¿Qué elemento tiene el símbolo químico 'Fe'?", o: ["Oro", "Hierro", "Plata", "Cobre"], a: 1 },
-        { q: "¿Cuál es la partícula subatómica con carga negativa?", o: ["Protón", "Neutrón", "Electrón", "Quark"], a: 2 },
-        { q: "¿Cómo se llama el proceso de las plantas para producir alimento?", o: ["Respiración", "Mitosis", "Fotosíntesis", "Quimiosíntesis"], a: 2 },
-        { q: "¿Cuál es el mamífero más grande?", o: ["Elefante", "Ballena Azul", "Jirafa", "Rinoceronte"], a: 1 },
-        { q: "¿En qué estado de la materia las moléculas están más separadas?", o: ["Sólido", "Líquido", "Gaseoso", "Plasma"], a: 2 },
-        { q: "¿A qué temperatura hierve el agua a nivel del mar?", o: ["90°C", "100°C", "110°C", "120°C"], a: 1 },
-        { q: "¿Cuál es el planeta más cercano al Sol?", o: ["Venus", "Marte", "Mercurio", "Tierra"], a: 2 },
-        { q: "¿Qué inventó Alexander Fleming?", o: ["La bombilla", "La penicilina", "El teléfono", "La radio"], a: 1 },
-        { q: "¿Velocidad de la luz aprox.?", o: ["300 km/s", "3.000 km/s", "30.000 km/s", "300.000 km/s"], a: 3 },
-        { q: "¿Qué órgano consume más energía?", o: ["Corazón", "Hígado", "Cerebro", "Músculos"], a: 2 },
-        // Historia
-        { q: "¿Cuándo empezó la Primera Guerra Mundial?", o: ["1912", "1914", "1916", "1918"], a: 1 },
-        { q: "¿Primer presidente de EE.UU.?", o: ["Lincoln", "Jefferson", "Washington", "Roosevelt"], a: 2 },
-        { q: "¿Qué antigua civilización construyó Machu Picchu?", o: ["Maya", "Azteca", "Inca", "Olmeca"], a: 2 },
-        { q: "¿En qué país está la Gran Pirámide de Guiza?", o: ["Egipto", "México", "Perú", "Grecia"], a: 0 },
-        { q: "¿País más grande por superficie?", o: ["Canadá", "China", "EE.UU.", "Rusia"], a: 3 },
-        { q: "¿Qué estrecho separa España de Marruecos?", o: ["Bósforo", "Magallanes", "Gibraltar", "Ormuz"], a: 2 },
-        { q: "¿En qué océano está Hawái?", o: ["Atlántico", "Pacífico", "Índico", "Ártico"], a: 1 },
-        { q: "¿Capital de Japón?", o: ["Kioto", "Osaka", "Tokio", "Hiroshima"], a: 2 },
-        { q: "¿Primera mujer en ganar un Premio Nobel?", o: ["Marie Curie", "M. Teresa", "Malala", "R. Franklin"], a: 0 },
-        { q: "¿Cuándo cayó el Muro de Berlín?", o: ["1987", "1988", "1989", "1990"], a: 2 },
-        // Arte
-        { q: "¿Quién escribió 'Don Quijote'?", o: ["Lope de Vega", "Cervantes", "Quevedo", "Góngora"], a: 1 },
-        { q: "¿Quién pintó la 'Mona Lisa'?", o: ["Miguel Ángel", "Leonardo", "Rafael", "Donatello"], a: 1 },
-        { q: "¿Libro más vendido tras la Biblia?", o: ["Harry Potter", "Don Quijote", "El Principito", "H. dos ciudades"], a: 1 },
-        { q: "¿Compositor de la 'Novena Sinfonía'?", o: ["Mozart", "Bach", "Beethoven", "Chopin"], a: 2 },
-        { q: "¿Qué movimiento lideró Dalí?", o: ["Impresionismo", "Cubismo", "Surrealismo", "Expresionismo"], a: 2 },
-        { q: "¿Quién escribió 'Hamlet'?", o: ["Cervantes", "Shakespeare", "Molière", "Goethe"], a: 1 },
-        { q: "¿En qué ciudad está el museo del Louvre?", o: ["Londres", "Roma", "Madrid", "París"], a: 3 },
-        { q: "¿Material del 'David' de Miguel Ángel?", o: ["Bronce", "Mármol", "Madera", "Yeso"], a: 1 },
-        { q: "¿Quién pintó 'El Grito'?", o: ["Van Gogh", "Munch", "Picasso", "Matisse"], a: 1 },
-        { q: "¿Instrumento principal del cuarteto de cuerda?", o: ["Viola", "Cello", "Contrabajo", "Violín"], a: 3 },
-        // Cultura pop
-        { q: "¿Banda conocida como 'The Fab Four'?", o: ["Stones", "Led Zeppelin", "The Beatles", "The Who"], a: 2 },
-        { q: "¿Actor de 'Piratas del Caribe'?", o: ["Pitt", "DiCaprio", "Johnny Depp", "Tom Cruise"], a: 2 },
-        { q: "¿Deporte más popular?", o: ["Baloncesto", "Tenis", "Críquet", "Fútbol"], a: 3 },
-        { q: "¿Cuándo empezaron los JJOO modernos?", o: ["1890", "1894", "1896", "1900"], a: 2 },
-        { q: "¿Goleador histórico de los Mundiales?", o: ["Pelé", "Ronaldo", "Klose", "Messi"], a: 2 },
-        { q: "¿País ganador del Mundial 2022?", o: ["Francia", "Brasil", "Argentina", "Alemania"], a: 2 },
-        { q: "¿Artista con más premios Grammy?", o: ["Georg Solti", "Beyoncé", "Quincy Jones", "Alison Krauss"], a: 1 },
-        { q: "¿Videojuego más vendido?", o: ["Tetris", "Minecraft", "GTA V", "Wii Sports"], a: 1 },
-        { q: "¿Superhéroe 'Caballero Oscuro'?", o: ["Superman", "Spider-Man", "Iron Man", "Batman"], a: 3 },
-        { q: "¿Ciudad de los premios Oscar?", o: ["Nueva York", "Chicago", "Los Ángeles", "Miami"], a: 2 },
-        { q: "¿Moneda oficial del Reino Unido?", o: ["Euro", "Dólar", "Libra", "Yen"], a: 2 },
-        { q: "¿Animal símbolo de sabiduría?", o: ["Zorro", "León", "Águila", "Búho"], a: 3 },
-        { q: "¿Único mamífero capaz de volar?", o: ["Pájaro", "Murciélago", "Ardilla Voladora", "Insecto"], a: 1 },
-        { q: "¿Fruta con semillas por fuera?", o: ["Manzana", "Naranja", "Fresa", "Plátano"], a: 2 },
-        { q: "¿Lados de un hexágono?", o: ["5", "6", "7", "8"], a: 1 },
-        { q: "¿Mezcla de azul y amarillo?", o: ["Rojo", "Naranja", "Verde", "Morado"], a: 2 },
-        { q: "¿Capital de Portugal?", o: ["Oporto", "Braga", "Coímbra", "Lisboa"], a: 3 },
-        { q: "¿Qué inventaron los hermanos Wright?", o: ["El avión", "El teléfono", "La radio", "La bombilla"], a: 0 },
-        { q: "¿Océano más pequeño?", o: ["Índico", "Ártico", "Antártico", "Pacífico"], a: 1 },
-        { q: "¿País con forma de bota?", o: ["España", "Francia", "Italia", "Grecia"], a: 2 }
-    ];
+        <!-- Puertas (sin enlaces directos) -->
+        <div id="door1" class="door" data-link="minijuegos/laberinto.html">🎃</div>
+        <div id="door2" class="door" data-link="minijuegos/diferencias.html">🧟</div>
+        <div id="door3" class="door" data-link="minijuegos/puzzle.html">🧩</div>
+        <div id="door4" class="door" data-link="minijuegos/ahorcado.html">💀</div>
+    </div>
 
-    const hoy = new Date().toISOString().split("T")[0];
-    let startTime, timerInterval, currentQuestions = [], currentStep = 0, score = 0, playingDate = "";
+    <div id="instructions">
+        Usa las flechas o WASD para moverte. Acércate a una puerta para entrar al minijuego.
+    </div>
 
-    function checkAuth() {
-        const name = localStorage.getItem('triviaUser');
-        if (!name) showScreen('screen-auth');
-        else {
-            showScreen('screen-home');
-            document.getElementById('welcome-msg').innerText = `Listo para hoy, ${name}`;
-            document.getElementById('calendar-input').max = hoy;
-            // Solo carga el ranking, ya no está dentro del screen-home
-            renderLeaderboard();
-            checkTodayStatus();
-        }
-    }
+    <script>
+        const player = document.getElementById("player");
+        const doors = document.querySelectorAll(".door");
+        let posX = 100;
+        let posY = 100;
+        const speed = 10;
 
-    function saveName() {
-        const val = document.getElementById('username-input').value.trim();
-        if (val.length >= 3) {
-            localStorage.setItem('triviaUser', val);
-            checkAuth();
-        } else alert("Nombre muy corto.");
-    }
-
-    function initGame(mode) {
-        playingDate = (mode === 'today') ? hoy : document.getElementById('calendar-input').value;
-        if (!playingDate) return;
-
-        const seed = playingDate.split("-").join("");
-        currentQuestions = getDailySet(seed);
-        currentStep = 0; score = 0;
-        
-        showScreen('screen-game');
-        startTimer();
-        loadQuestion();
-    }
-
-    function getDailySet(seed) {
-        let set = [];
-        let tempBank = [...masterBank];
-        let s = parseInt(seed);
-        for (let i = tempBank.length - 1; i > 0; i--) {
-            s = (s * 9301 + 49297) % 233280;
-            let j = s % (i + 1);
-            [tempBank[i], tempBank[j]] = [tempBank[j], tempBank[i]];
-        }
-        for(let i=0; i<10; i++) set.push(tempBank[i % tempBank.length]);
-        return set;
-    }
-
-    function loadQuestion() {
-        const q = currentQuestions[currentStep];
-        document.getElementById('q-count').innerText = `${currentStep + 1}/10`;
-        document.getElementById('q-text').innerText = q.q;
-        const box = document.getElementById('options-box');
-        box.innerHTML = '';
-
-        q.o.forEach((opt, i) => {
-            const b = document.createElement('button');
-            b.className = 'opt-btn';
-            b.innerText = opt;
-            b.onclick = () => {
-                if(document.querySelector('.correct')) return;
-                
-                if(i === q.a) {
-                    b.classList.add('correct');
-                    score++;
-                } else {
-                    b.classList.add('wrong');
-                    document.querySelectorAll('.opt-btn')[q.a].classList.add('correct');
-                }
-                
-                setTimeout(() => {
-                    currentStep++;
-                    if(currentStep < 10) loadQuestion();
-                    else finishGame();
-                }, 1000);
-            };
-            box.appendChild(b);
-        });
-    }
-
-    function finishGame() {
-        clearInterval(timerInterval);
-        const timeStr = document.getElementById('timer').innerText;
-        showScreen('screen-result');
-        document.getElementById('final-stats').innerText = `${score}/10`;
-        document.getElementById('final-time').innerText = `Tiempo total: ${timeStr}`;
-
-        if(playingDate === hoy) {
-            saveResult(score, timeStr);
-            updateStreak();
-        }
-    }
-
-    function saveResult(pts, time) {
-        const name = localStorage.getItem('triviaUser');
-        const recordID = name + "_" + hoy;
-        
-        if(localStorage.getItem('lastPlayed_' + hoy)) return;
-
-        database.ref('ranking/' + recordID).set({
-            user: name,
-            points: pts,
-            time: time,
-            date: hoy,
-            timestamp: Date.now()
-        });
-        localStorage.setItem('lastPlayed_' + hoy, 'true');
-    }
-
-    function renderLeaderboard() {
-        database.ref('ranking').orderByChild('date').equalTo(hoy).on('value', (snapshot) => {
-            let data = [];
-            snapshot.forEach(child => data.push(child.val()));
-
-            data.sort((a,b) => b.points - a.points || a.time.localeCompare(b.time));
-
-            const list = document.getElementById('lead-list');
-            let html = "";
-            
-            // Re-estructurado para el nuevo diseño CSS
-            for (let i = 0; i < 10; i++) {
-                if (data[i]) {
-                    html += `
-                        <div class="entry">
-                            <span class="rank">#${i+1}</span>
-                            <span class="username">${data[i].user}</span>
-                            <span class="score-tag">${data[i].points}/10 <small style="opacity:0.5">${data[i].time}</small></span>
-                        </div>`;
-                } else {
-                    html += `
-                        <div class="entry">
-                            <span class="rank">#${i+1}</span>
-                            <span class="username empty-slot">Esperando retador...</span>
-                            <span class="score-tag">--</span>
-                        </div>`;
-                }
+        document.addEventListener("keydown", (e) => {
+            switch (e.key) {
+                case "ArrowUp":
+                case "w":
+                    posY -= speed;
+                    break;
+                case "ArrowDown":
+                case "s":
+                    posY += speed;
+                    break;
+                case "ArrowLeft":
+                case "a":
+                    posX -= speed;
+                    break;
+                case "ArrowRight":
+                case "d":
+                    posX += speed;
+                    break;
             }
-            list.innerHTML = html;
+
+            posX = Math.max(0, Math.min(posX, 760));
+            posY = Math.max(0, Math.min(posY, 560));
+
+            player.style.left = posX + "px";
+            player.style.top = posY + "px";
+
+            checkCollision();
         });
-        document.getElementById('streak-num').innerText = localStorage.getItem('userStreak') || 0;
-    }
 
-    function updateStreak() {
-        let streak = parseInt(localStorage.getItem('userStreak') || 0);
-        let lastDate = localStorage.getItem('lastDatePlayed');
-        const ayer = new Date(); ayer.setDate(ayer.getDate() - 1);
-        const ayerStr = ayer.toISOString().split("T")[0];
-        if(lastDate === ayerStr) streak++;
-        else if(lastDate !== hoy) streak = 1;
-        localStorage.setItem('userStreak', streak);
-        localStorage.setItem('lastDatePlayed', hoy);
-    }
-
-    function checkTodayStatus() {
-        if(localStorage.getItem('lastPlayed_' + hoy)) {
-            const btn = document.getElementById('play-today-btn');
-            btn.disabled = true;
-            btn.innerText = "YA JUGADO HOY";
+        function isColliding(rect1, rect2) {
+            return !(
+                rect1.right < rect2.left ||
+                rect1.left > rect2.right ||
+                rect1.bottom < rect2.top ||
+                rect1.top > rect2.bottom
+            );
         }
-    }
 
-    function startTimer() {
-        let start = Date.now();
-        timerInterval = setInterval(() => {
-            let diff = Date.now() - start;
-            let m = Math.floor(diff / 60000);
-            let s = Math.floor((diff % 60000) / 1000);
-            document.getElementById('timer').innerText = 
-                `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-        }, 1000);
-    }
+        let entered = false; // evita entrar dos veces
 
-    function showScreen(id) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-    }
+        function checkCollision() {
+            if (entered) return;
 
-    checkAuth();
-</script>
+            const playerRect = player.getBoundingClientRect();
 
+            doors.forEach(door => {
+                const doorRect = door.getBoundingClientRect();
+                if (isColliding(playerRect, doorRect)) {
+                    const link = door.getAttribute("data-link");
+                    entered = true;
+                    setTimeout(() => {
+                        window.location.href = link;
+                    }, 200); // pequeña pausa antes de ir al minijuego
+                }
+            });
+        }
+    </script>
 </body>
+</html>
+
 </html>
